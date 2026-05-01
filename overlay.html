@@ -125,6 +125,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Pushes the rect frame + aura down visually without changing
+       flow, so the top/bottom hex chips keep their positions */
+    transform: translateY(24px);
   }
 
   /* Aura container — extends well past the rect frame so the
