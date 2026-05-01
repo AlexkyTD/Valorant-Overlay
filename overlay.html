@@ -115,20 +115,21 @@
 
   .hero-frame-wrap {
     position: relative;
-    width: 200px;
-    height: 280px;
+    width: 108px;
+    height: 150px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  /* Aura container — extends past the rect frame */
+  /* Aura container — extends well past the rect frame so the
+     elemental decoration is the dominant visual element */
   .aura-wrap {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 320px;
-    height: 320px;
+    width: 270px;
+    height: 270px;
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 0;
@@ -144,8 +145,8 @@
   /* Rectangle portrait frame */
   .rect-frame {
     position: relative;
-    width: 200px;
-    height: 280px;
+    width: 108px;
+    height: 150px;
     z-index: 2;
     border: 2px solid var(--accent, var(--val-red));
     border-radius: 2px;
