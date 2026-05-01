@@ -391,6 +391,17 @@
   let selectedUuid = null;
   let currentSort = 'alpha';
 
+  // Custom (non-API) agents — must mirror overlay.html's CUSTOM_AGENTS list
+  const CUSTOM_AGENTS = [
+    {
+      uuid: 'custom-miks-0001',
+      displayName: 'Miks',
+      role: { displayName: 'Controller' },
+      displayIcon: './miks-icon.png',
+      backgroundGradientColors: ['ff5fa8ff', '7a3affff', 'fff0d4ff'],
+    },
+  ];
+
   const channel = new BroadcastChannel(CHANNEL_NAME);
 
   // ── Fetch agents ──
@@ -398,7 +409,7 @@
     const res = await fetch(API_URL);
     if (!res.ok) throw new Error(`API ${res.status}`);
     const data = await res.json();
-    agentsRelease = data.data.map(a => ({
+    agentsRelease = [...data.data, ...CUSTOM_AGENTS].map(a => ({
       uuid: a.uuid,
       name: a.displayName,
       role: a.role?.displayName || 'Unknown',

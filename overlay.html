@@ -368,7 +368,23 @@ const ELEMENT_MAP = {
   tejo:       { el: 'missile',      primary: '#f0a020', secondary: '#a06010', accent: '#ffd07a', bg: 'radial-gradient(circle at 50% 60%, #2a1a08, #080604)' },
   waylay:     { el: 'radiance',     primary: '#ff80a8', secondary: '#c84a78', accent: '#ffc8da', bg: 'radial-gradient(circle at 50% 60%, #2a0a18, #08020a)' },
   veto:       { el: 'stealth',      primary: '#7a90ff', secondary: '#3a4aa8', accent: '#c0d0ff', bg: 'radial-gradient(circle at 50% 60%, #0a142a, #02040c)' },
+  miks:       { el: 'sound',        primary: '#ff5fa8', secondary: '#7a3aff', accent: '#fff0d4', bg: 'radial-gradient(circle at 50% 60%, #2a0a3a, #08020c)' },
 };
+
+/* Custom (non-API) agents — injected after the Valorant API fetch.
+   Drop matching images into the repo root: miks-portrait.png + miks-icon.png */
+const CUSTOM_AGENTS = [
+  {
+    uuid: 'custom-miks-0001',
+    displayName: 'Miks',
+    role: { displayName: 'Controller' },
+    bustPortrait: './miks-portrait.png',
+    fullPortrait: './miks-portrait.png',
+    displayIcon: './miks-icon.png',
+    backgroundGradientColors: ['ff5fa8ff', '7a3affff', 'fff0d4ff'],
+    isPlayableCharacter: true,
+  },
+];
 const FALLBACK = { el: 'fire', primary: '#FD4556', secondary: '#FF8A65', accent: '#FFD54F', bg: 'radial-gradient(circle at 50% 60%, #2a0a14, #08020c)' };
 
 /* ════════════════════════════════════════════════════════════
@@ -1026,7 +1042,7 @@ function hexSvg(stroke, active) {
     const res = await fetch(API_URL);
     if (!res.ok) throw new Error(`API ${res.status}`);
     const data = await res.json();
-    agents = data.data
+    agents = [...data.data, ...CUSTOM_AGENTS]
       .filter(a => a.isPlayableCharacter !== false)
       .map(a => {
         const key = a.displayName.toLowerCase();
