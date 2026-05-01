@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VALORANT Overlay — Control Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 960px;
+    height: 540px;
+    overflow: hidden;
+    background: #0F1923;
+    font-family: 'Rajdhani', sans-serif;
+    color: #ECE8E1;
+  }
+
+  .dock {
+    width: 960px;
+    height: 540px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    background: #141D27;
+    border-bottom: 1px solid rgba(236,232,225,0.08);
+    flex-shrink: 0;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .header-title {
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #ECE8E1;
+  }
+  .header-title span { color: #FF4655; }
+
+  .live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.4);
+    visibility: hidden;
+  }
+  .live-indicator.on { visibility: visible; }
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4CAF50;
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .current-agent-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .current-agent-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    object-fit: cover;
+    border: 1px solid rgba(255,70,85,0.4);
+    display: none;
+  }
+  .current-agent-icon.visible { display: block; }
+  .current-agent-meta {
+    display: flex;
+    flex-direction: column;
+  }
+  .current-agent-name {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .current-agent-role {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .header-logo {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #FF4655;
+    transform: rotate(45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .header-logo-inner {
+    transform: rotate(-45deg);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: #FF4655;
+  }
+
+  /* ── Sort bar ── */
+  .sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: #111A24;
+    border-bottom: 1px solid rgba(236,232,225,0.06);
+    flex-shrink: 0;
+  }
+  .sort-label {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.4);
+    margin-right: 4px;
+  }
+  .sort-btn {
+    appearance: none;
+    background: transparent;
+    border: 1px solid rgba(236,232,225,0.15);
+    color: rgba(236,232,225,0.5);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .sort-btn:hover {
+    border-color: rgba(255,70,85,0.4);
+    color: #ECE8E1;
+  }
+  .sort-btn.active {
+    background: #FF4655;
+    border-color: #FF4655;
+    color: #fff;
+  }
+
+  .search-box {
+    margin-left: auto;
+    appearance: none;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(236,232,225,0.1);
+    color: #ECE8E1;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 3px;
+    width: 180px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-box::placeholder { color: rgba(236,232,225,0.25); }
+  .search-box:focus { border-color: rgba(255,70,85,0.5); }
+
+  /* ── Agent grid ── */
+  .grid-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,70,85,0.3) transparent;
+  }
+  .grid-container::-webkit-scrollbar { width: 6px; }
+  .grid-container::-webkit-scrollbar-track { background: transparent; }
+  .grid-container::-webkit-scrollbar-thumb { background: rgba(255,70,85,0.3); border-radius: 3px; }
+
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+  }
+
+  .agent-card {
+    appearance: none;
+    background: #1A2332;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .agent-card:hover {
+    background: #1E2A3A;
+    box-shadow: 0 0 16px var(--card-glow, rgba(255,70,85,0.15));
+  }
+  .agent-card.selected {
+    border-color: #FF4655;
+    background: #1E2A3A;
+    box-shadow: 0 0 20px rgba(255,70,85,0.25);
+  }
+
+  .card-role-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    z-index: 2;
+  }
+  .card-role-dot[data-role="Duelist"]     { background: #FF4655; }
+  .card-role-dot[data-role="Initiator"]   { background: #E8A838; }
+  .card-role-dot[data-role="Controller"]  { background: #9B59B6; }
+  .card-role-dot[data-role="Sentinel"]    { background: #3498DB; }
+
+  .card-img-wrap {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+  }
+  .card-img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+    transition: transform 0.15s ease;
+  }
+  .agent-card:hover .card-img { transform: scale(1.08); }
+
+  .card-name {
+    width: 100%;
+    padding: 4px 6px 8px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+  .agent-card.selected .card-name { color: #ECE8E1; }
+
+  /* ── Role group headers ── */
+  .role-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0 4px;
+  }
+  .role-header-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .role-header-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.5);
+  }
+
+  /* ── Loading / Error ── */
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: #0F1923;
+    z-index: 20;
+  }
+  .loading-overlay.hidden { display: none; }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255,70,85,0.2);
+    border-top-color: #FF4655;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-overlay .text {
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.4);
+  }
+
+  .error-banner {
+    padding: 12px 24px;
+    background: rgba(255,70,85,0.1);
+    border-bottom: 1px solid rgba(255,70,85,0.2);
+    text-align: center;
+    font-size: 13px;
+    color: #FF4655;
+    display: none;
+  }
+  .error-banner.visible { display: block; }
+</style>
+</head>
+<body>
+<div class="dock" style="position:relative">
+  <div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+    <div class="text">Loading agents...</div>
+  </div>
+
+  <div class="error-banner" id="error"></div>
+
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo"><span class="header-logo-inner">VAL</span></div>
+      <div class="header-title"><span>VALORANT</span> OVERLAY CONTROL</div>
+      <div class="live-indicator" id="live-indicator">
+        <div class="live-dot"></div>
+        LIVE
+      </div>
+    </div>
+    <div class="current-agent-info" id="current-info">
+      <div class="current-agent-meta">
+        <div class="current-agent-name" id="current-name">—</div>
+        <div class="current-agent-role" id="current-role" style="color:rgba(236,232,225,0.4)">No agent selected</div>
+      </div>
+      <img class="current-agent-icon" id="current-icon" alt="">
+    </div>
+  </div>
+
+  <div class="sort-bar">
+    <span class="sort-label">Sort:</span>
+    <button class="sort-btn active" data-sort="alpha">A → Z</button>
+    <button class="sort-btn" data-sort="release">Release</button>
+    <button class="sort-btn" data-sort="role">By Role</button>
+    <input class="search-box" type="text" placeholder="Search agent..." id="search">
+  </div>
+
+  <div class="grid-container" id="grid-container">
+    <div class="agent-grid" id="agent-grid"></div>
+  </div>
+</div>
+
+<script>
+(async function () {
+  const API_URL = 'https://valorant-api.com/v1/agents?isPlayableCharacter=true';
+  const CHANNEL_NAME = 'valorant-overlay';
+  const ROLE_ORDER = ['Duelist', 'Initiator', 'Controller', 'Sentinel'];
+  const ROLE_COLORS = { Duelist: '#FF4655', Initiator: '#E8A838', Controller: '#9B59B6', Sentinel: '#3498DB' };
+
+  const loadingEl = document.getElementById('loading');
+  const errorEl = document.getElementById('error');
+  const gridEl = document.getElementById('agent-grid');
+  const liveEl = document.getElementById('live-indicator');
+  const currentName = document.getElementById('current-name');
+  const currentRole = document.getElementById('current-role');
+  const currentIcon = document.getElementById('current-icon');
+  const searchInput = document.getElementById('search');
+
+  let agentsRelease = []; // original API order (release order)
+  let selectedUuid = null;
+  let currentSort = 'alpha';
+
+  const channel = new BroadcastChannel(CHANNEL_NAME);
+
+  // ── Fetch agents ──
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    const data = await res.json();
+    agentsRelease = data.data.map(a => ({
+      uuid: a.uuid,
+      name: a.displayName,
+      role: a.role?.displayName || 'Unknown',
+      icon: a.displayIcon,
+      colors: (a.backgroundGradientColors || []).map(c => '#' + c.substring(0, 6)),
+    }));
+    loadingEl.classList.add('hidden');
+    renderGrid();
+  } catch (err) {
+    loadingEl.classList.add('hidden');
+    errorEl.textContent = 'Failed to load agents — check your connection.';
+    errorEl.classList.add('visible');
+    return;
+  }
+
+  // ── Sort logic ──
+  function getSortedAgents(filter = '') {
+    let list = agentsRelease.slice();
+    if (filter) {
+      const q = filter.toLowerCase();
+      list = list.filter(a => a.name.toLowerCase().includes(q));
+    }
+
+    switch (currentSort) {
+      case 'alpha':
+        list.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'role':
+        list.sort((a, b) => {
+          const ri = ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role);
+          return ri !== 0 ? ri : a.name.localeCompare(b.name);
+        });
+        break;
+      // 'release' keeps API order (already in list)
+    }
+    return list;
+  }
+
+  // ── Render ──
+  function renderGrid() {
+    const filter = searchInput.value.trim();
+    const sorted = getSortedAgents(filter);
+    gridEl.innerHTML = '';
+
+    if (currentSort === 'role' && !filter) {
+      let lastRole = null;
+      sorted.forEach(agent => {
+        if (agent.role !== lastRole) {
+          lastRole = agent.role;
+          const header = document.createElement('div');
+          header.className = 'role-header';
+          header.innerHTML = `<div class="role-header-dot" style="background:${ROLE_COLORS[agent.role] || '#888'}"></div>
+            <div class="role-header-text">${agent.role}</div>`;
+          gridEl.appendChild(header);
+        }
+        gridEl.appendChild(createCard(agent));
+      });
+    } else {
+      sorted.forEach(agent => gridEl.appendChild(createCard(agent)));
+    }
+  }
+
+  function createCard(agent) {
+    const btn = document.createElement('button');
+    btn.className = 'agent-card' + (agent.uuid === selectedUuid ? ' selected' : '');
+    btn.style.setProperty('--card-glow', (agent.colors[0] || '#FF4655') + '30');
+    btn.innerHTML = `
+      <div class="card-role-dot" data-role="${agent.role}"></div>
+      <div class="card-img-wrap">
+        <img class="card-img" src="${agent.icon}" alt="${agent.name}" loading="lazy">
+      </div>
+      <div class="card-name">${agent.name}</div>`;
+    btn.addEventListener('click', () => selectAgent(agent.uuid));
+    return btn;
+  }
+
+  function selectAgent(uuid) {
+    selectedUuid = uuid;
+    const agent = agentsRelease.find(a => a.uuid === uuid);
+    if (!agent) return;
+
+    channel.postMessage({ type: 'SELECT_AGENT', agentUuid: uuid });
+
+    currentName.textContent = agent.name;
+    currentRole.textContent = agent.role;
+    currentRole.style.color = ROLE_COLORS[agent.role] || '#ECE8E1';
+    currentIcon.src = agent.icon;
+    currentIcon.classList.add('visible');
+    liveEl.classList.add('on');
+
+    renderGrid();
+  }
+
+  // ── Sort buttons ──
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentSort = btn.dataset.sort;
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGrid();
+    });
+  });
+
+  // ── Search ──
+  searchInput.addEventListener('input', () => renderGrid());
+})();
+</script>
+</body>
+</html>

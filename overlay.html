@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VALORANT Overlay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 300px;
+    height: 900px;
+    overflow: hidden;
+    background: transparent !important;
+    font-family: 'Rajdhani', sans-serif;
+    color: #ECE8E1;
+  }
+
+  .overlay-root {
+    position: relative;
+    width: 300px;
+    height: 900px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Particle canvas ── */
+  #particle-canvas {
+    position: absolute;
+    inset: 0;
+    width: 300px;
+    height: 900px;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── Idle state ── */
+  .idle-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    z-index: 2;
+  }
+  .idle-logo {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #FF4655;
+    transform: rotate(45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: idle-pulse 2s ease-in-out infinite;
+  }
+  .idle-logo-inner {
+    transform: rotate(-45deg);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    color: #FF4655;
+  }
+  .idle-text {
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.4);
+    animation: idle-pulse 2s ease-in-out infinite;
+  }
+  @keyframes idle-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+  .idle-state.hidden { display: none; }
+
+  /* ── Agent display ── */
+  .agent-display {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 40px;
+    z-index: 1;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .agent-display.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ── Portrait ── */
+  .portrait-container {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 680px;
+    overflow: hidden;
+  }
+  .portrait-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    filter: drop-shadow(0 8px 32px rgba(0,0,0,0.6));
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .portrait-img.slide-out {
+    transform: translateX(-110%);
+    opacity: 0;
+    transition: transform 0.3s ease-in, opacity 0.3s ease-in;
+  }
+  .portrait-img.slide-in {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  .portrait-img.slide-in-active {
+    transform: translateX(0);
+    opacity: 1;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  }
+
+  /* ── Ambient background glow behind portrait ── */
+  .ambient-bg {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 500px;
+    opacity: 0.25;
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+    transition: background 0.6s ease;
+  }
+
+  /* ── Decorative angular lines ── */
+  .deco-line {
+    width: 180px;
+    height: 2px;
+    position: relative;
+    margin: 12px 0;
+    overflow: visible;
+  }
+  .deco-line::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #FF4655 30%, #FF4655 70%, transparent);
+    opacity: 0.6;
+  }
+  .deco-line::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -3px;
+    width: 8px;
+    height: 8px;
+    background: #FF4655;
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  /* ── Name block ── */
+  .name-block {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.2s ease;
+  }
+  .agent-name {
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #ECE8E1;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.7), 0 0 30px rgba(255,70,85,0.3);
+    line-height: 1;
+  }
+  .role-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  }
+  .role-badge[data-role="Duelist"]     { background: #FF4655; }
+  .role-badge[data-role="Initiator"]   { background: #E8A838; }
+  .role-badge[data-role="Controller"]  { background: #9B59B6; }
+  .role-badge[data-role="Sentinel"]    { background: #3498DB; }
+
+  /* ── Gradient fade at bottom ── */
+  .bottom-fade {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── Loading spinner ── */
+  .loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 10;
+  }
+  .loading.hidden { display: none; }
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255,70,85,0.2);
+    border-top-color: #FF4655;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.5);
+  }
+
+  .error-msg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: #FF4655;
+    text-align: center;
+    padding: 20px;
+    z-index: 10;
+  }
+  .error-msg.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="overlay-root">
+  <canvas id="particle-canvas" width="300" height="900"></canvas>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading agents...</div>
+  </div>
+
+  <div class="error-msg hidden" id="error"></div>
+
+  <div class="idle-state hidden" id="idle">
+    <div class="idle-logo"><span class="idle-logo-inner">VAL</span></div>
+    <div class="idle-text">Waiting for agent...</div>
+  </div>
+
+  <div class="agent-display" id="agent-display">
+    <div class="ambient-bg" id="ambient-bg"></div>
+    <div class="portrait-container">
+      <img class="portrait-img" id="portrait" alt="" draggable="false">
+    </div>
+    <div class="bottom-fade"></div>
+    <div class="deco-line"></div>
+    <div class="name-block" id="name-block">
+      <div class="agent-name" id="agent-name"></div>
+      <div class="role-badge" id="role-badge"></div>
+    </div>
+    <div class="deco-line"></div>
+  </div>
+</div>
+
+<script>
+(async function () {
+  const API_URL = 'https://valorant-api.com/v1/agents?isPlayableCharacter=true';
+  const CHANNEL_NAME = 'valorant-overlay';
+
+  const loadingEl = document.getElementById('loading');
+  const errorEl = document.getElementById('error');
+  const idleEl = document.getElementById('idle');
+  const agentDisplay = document.getElementById('agent-display');
+  const portraitEl = document.getElementById('portrait');
+  const agentNameEl = document.getElementById('agent-name');
+  const roleBadgeEl = document.getElementById('role-badge');
+  const ambientBg = document.getElementById('ambient-bg');
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+
+  let agents = {};
+  let currentAgent = null;
+  let particles = [];
+  let particleColors = ['#FF4655', '#FF8A65', '#FFD54F'];
+
+  // ── Fetch agents ──
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error(`API returned ${res.status}`);
+    const data = await res.json();
+    data.data.forEach(a => {
+      agents[a.uuid] = {
+        uuid: a.uuid,
+        name: a.displayName,
+        role: a.role?.displayName || 'Unknown',
+        bustPortrait: a.bustPortrait || a.fullPortrait,
+        background: a.background,
+        colors: (a.backgroundGradientColors || []).map(c => '#' + c.substring(0, 6)),
+      };
+    });
+    loadingEl.classList.add('hidden');
+    idleEl.classList.remove('hidden');
+  } catch (err) {
+    loadingEl.classList.add('hidden');
+    errorEl.textContent = 'Failed to load agents. Check network.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+
+  // ── BroadcastChannel listener ──
+  const channel = new BroadcastChannel(CHANNEL_NAME);
+  channel.onmessage = (e) => {
+    if (e.data?.type === 'SELECT_AGENT' && e.data.agentUuid) {
+      selectAgent(e.data.agentUuid);
+    }
+  };
+
+  // ── Agent selection ──
+  function selectAgent(uuid) {
+    const agent = agents[uuid];
+    if (!agent) return;
+
+    idleEl.classList.add('hidden');
+
+    if (currentAgent) {
+      transitionAgent(agent);
+    } else {
+      showAgent(agent);
+    }
+  }
+
+  function showAgent(agent) {
+    currentAgent = agent;
+    updateColors(agent);
+    agentNameEl.textContent = agent.name;
+    roleBadgeEl.textContent = agent.role;
+    roleBadgeEl.setAttribute('data-role', agent.role);
+
+    portraitEl.src = agent.bustPortrait;
+    portraitEl.classList.remove('slide-out', 'slide-in');
+    portraitEl.classList.add('slide-in');
+
+    agentDisplay.classList.add('active');
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        portraitEl.classList.remove('slide-in');
+        portraitEl.classList.add('slide-in-active');
+      });
+    });
+  }
+
+  function transitionAgent(agent) {
+    portraitEl.classList.add('slide-out');
+
+    setTimeout(() => {
+      currentAgent = agent;
+      updateColors(agent);
+      agentNameEl.textContent = agent.name;
+      roleBadgeEl.textContent = agent.role;
+      roleBadgeEl.setAttribute('data-role', agent.role);
+
+      portraitEl.src = agent.bustPortrait;
+      portraitEl.classList.remove('slide-out');
+      portraitEl.classList.add('slide-in');
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          portraitEl.classList.remove('slide-in');
+          portraitEl.classList.add('slide-in-active');
+        });
+      });
+    }, 320);
+  }
+
+  function updateColors(agent) {
+    const colors = agent.colors.length ? agent.colors : ['#FF4655', '#FF8A65', '#FFD54F'];
+    particleColors = colors.slice(0, 4);
+    ambientBg.style.background = `radial-gradient(ellipse, ${colors[0]}80, ${colors[1] || colors[0]}40, transparent)`;
+  }
+
+  // ── Particle system ──
+  const PARTICLE_COUNT = 22;
+  const SHAPES = ['circle', 'diamond', 'triangle'];
+
+  function createParticle() {
+    return {
+      x: Math.random() * 300,
+      y: 900 + Math.random() * 100,
+      size: 4 + Math.random() * 10,
+      speedY: -(0.3 + Math.random() * 0.5),
+      speedX: (Math.random() - 0.5) * 0.4,
+      wobbleAmp: 0.3 + Math.random() * 0.6,
+      wobbleSpeed: 0.01 + Math.random() * 0.02,
+      wobbleOffset: Math.random() * Math.PI * 2,
+      opacity: 0,
+      maxOpacity: 0.3 + Math.random() * 0.5,
+      color: particleColors[Math.floor(Math.random() * particleColors.length)],
+      shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
+      rotation: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.02,
+      time: 0,
+    };
+  }
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const p = createParticle();
+    p.y = Math.random() * 900;
+    p.opacity = p.maxOpacity * (1 - p.y / 900);
+    particles.push(p);
+  }
+
+  function drawParticle(p) {
+    ctx.save();
+    ctx.globalAlpha = p.opacity;
+    ctx.fillStyle = p.color;
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rotation);
+
+    switch (p.shape) {
+      case 'circle':
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      case 'diamond':
+        ctx.beginPath();
+        const hs = p.size / 2;
+        ctx.moveTo(0, -hs);
+        ctx.lineTo(hs * 0.6, 0);
+        ctx.lineTo(0, hs);
+        ctx.lineTo(-hs * 0.6, 0);
+        ctx.closePath();
+        ctx.fill();
+        break;
+      case 'triangle':
+        ctx.beginPath();
+        const s = p.size / 2;
+        ctx.moveTo(0, -s);
+        ctx.lineTo(s * 0.87, s * 0.5);
+        ctx.lineTo(-s * 0.87, s * 0.5);
+        ctx.closePath();
+        ctx.fill();
+        break;
+    }
+    ctx.restore();
+  }
+
+  function updateParticles() {
+    ctx.clearRect(0, 0, 300, 900);
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.time++;
+      p.y += p.speedY;
+      p.x += p.speedX + Math.sin(p.time * p.wobbleSpeed + p.wobbleOffset) * p.wobbleAmp;
+      p.rotation += p.rotSpeed;
+
+      // Fade in at bottom, fade out at top
+      const normalY = 1 - (p.y / 900);
+      if (normalY < 0.15) {
+        p.opacity = p.maxOpacity * (normalY / 0.15);
+      } else if (normalY > 0.85) {
+        p.opacity = p.maxOpacity * (1 - (normalY - 0.85) / 0.15);
+      } else {
+        p.opacity = p.maxOpacity;
+      }
+
+      // Reset particle when it goes off screen
+      if (p.y < -20 || p.x < -20 || p.x > 320) {
+        Object.assign(p, createParticle());
+      }
+
+      drawParticle(p);
+    }
+
+    requestAnimationFrame(updateParticles);
+  }
+
+  requestAnimationFrame(updateParticles);
+})();
+</script>
+</body>
+</html>
