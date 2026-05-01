@@ -165,7 +165,10 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: top center;
+    /* zoom in on the face: scale up and anchor to the top so the
+       head fills the frame instead of the full bust */
+    transform: scale(2.1);
+    transform-origin: 50% 18%;
     display: block;
   }
   .rect-bar {
