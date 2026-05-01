@@ -20,8 +20,8 @@
   *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
 
   html, body {
-    width: 300px;
-    height: 900px;
+    width: 400px;
+    height: 1200px;
     overflow: hidden;
     background: transparent !important;
     font-family: var(--font-body);
@@ -31,42 +31,34 @@
   /* ─────────── Layout ─────────── */
   .overlay {
     position: relative;
-    width: 300px;
-    height: 900px;
+    width: 400px;
+    height: 1200px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
   }
-  /* The visible panel — sized to fit content rather than the full 900px
-     OBS source. Centered vertically inside the transparent overlay. */
+  /* No background panel — fully transparent. The agent block is just
+     centered inside the 400×1200 OBS source. */
   .agent-display {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 22px 0 20px;
-    background: linear-gradient(180deg,
-      rgba(15,20,25,0) 0%,
-      rgba(15,20,25,0.78) 6%,
-      rgba(10,14,18,0.88) 50%,
-      rgba(15,20,25,0.78) 94%,
-      rgba(15,20,25,0) 100%);
-    backdrop-filter: blur(2px);
-    border-radius: 12px;
+    padding: 24px 0;
   }
 
   /* ─────────── Counter pill ─────────── */
   .ov-counter {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 0.16em;
-    padding: 5px 14px;
+    padding: 6px 18px;
     border: 1px solid var(--val-line);
-    border-radius: 14px;
+    border-radius: 16px;
     background: rgba(15,20,25,0.5);
     display: flex;
-    gap: 4px;
-    margin-bottom: 14px;
+    gap: 5px;
+    margin-bottom: 18px;
   }
   .ov-counter .num { color: var(--accent, var(--val-red)); font-weight: 600; }
   .ov-counter .sep { color: rgba(236,232,225,0.4); }
@@ -81,8 +73,8 @@
   }
   /* Push the top chip up and the bottom chip down so the aura
      halo around the hero doesn't overlap them */
-  #stack-top { margin-bottom: 22px; }
-  #stack-bot { margin-top: 22px; }
+  #stack-top { margin-bottom: 30px; }
+  #stack-bot { margin-top: 30px; }
   .hex-sep {
     color: rgba(236,232,225,0.3);
     font-size: 10px;
@@ -113,8 +105,8 @@
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   }
 
-  .hex-chip.size-sm { width: 38px; height: 44px; opacity: 0.6; }
-  .hex-chip.size-md { width: 52px; height: 60px; opacity: 0.85; }
+  .hex-chip.size-sm { width: 50px; height: 58px; opacity: 0.6; }
+  .hex-chip.size-md { width: 70px; height: 80px; opacity: 0.85; }
 
   /* ─────────── Hero (rect frame + aura) ─────────── */
   .hero-zone {
@@ -128,8 +120,8 @@
 
   .hero-frame-wrap {
     position: relative;
-    width: 108px;
-    height: 150px;
+    width: 144px;
+    height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -141,8 +133,8 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 270px;
-    height: 270px;
+    width: 360px;
+    height: 360px;
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 0;
@@ -158,8 +150,8 @@
   /* Rectangle portrait frame */
   .rect-frame {
     position: relative;
-    width: 108px;
-    height: 150px;
+    width: 144px;
+    height: 200px;
     z-index: 2;
     border: 2px solid var(--accent, var(--val-red));
     border-radius: 2px;
@@ -206,17 +198,17 @@
 
   /* ─────────── Nameplate ─────────── */
   .nameplate {
-    margin-top: 18px;
+    margin-top: 22px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     animation: burn-in 0.55s cubic-bezier(.2,.8,.2,1) both;
   }
   .agent-name {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 24px;
+    font-size: 32px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--val-cream);
@@ -225,19 +217,19 @@
   }
   .agent-role {
     font-family: var(--font-mono);
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.3em;
     text-transform: uppercase;
     color: var(--accent, var(--val-red));
   }
 
   .element-tag {
-    margin-top: 10px;
-    padding: 4px 14px;
+    margin-top: 14px;
+    padding: 5px 18px;
     border: 1px solid var(--accent, var(--val-red));
     border-radius: 2px;
     font-family: var(--font-mono);
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.28em;
     color: var(--accent-light, var(--val-cream));
     text-transform: uppercase;
