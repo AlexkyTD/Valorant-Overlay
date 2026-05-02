@@ -21,8 +21,8 @@
   }
 
   html, body {
-    width: 960px;
-    height: 540px;
+    width: 540px;
+    height: 620px;
     overflow: hidden;
     background: var(--val-bg);
     font-family: 'Rajdhani', sans-serif;
@@ -30,14 +30,14 @@
   }
 
   .dock {
-    width: 960px;
-    height: 540px;
+    width: 540px;
+    height: 620px;
     display: grid;
-    grid-template-rows: 56px 1fr;
-    grid-template-columns: 1fr 360px;
+    grid-template-rows: 52px 1fr auto;
     grid-template-areas:
-      "header header"
-      "main   options";
+      "header"
+      "main"
+      "options";
     position: relative;
   }
 
@@ -47,10 +47,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 24px;
+    padding: 0 18px;
     background: var(--val-bg-2);
     border-bottom: 1px solid var(--val-line);
   }
+  .header-title { font-size: 13px; }
   .header-left { display: flex; align-items: center; gap: 14px; }
   .header-logo {
     width: 26px; height: 26px;
@@ -87,28 +88,28 @@
   /* ── Main (preview + nav) ── */
   .main {
     grid-area: main;
-    padding: 28px 32px;
+    padding: 18px 22px;
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 14px;
     overflow: hidden;
   }
 
   .preview {
     display: grid;
-    grid-template-columns: 156px 1fr;
-    gap: 22px;
+    grid-template-columns: 110px 1fr;
+    gap: 18px;
     align-items: center;
     flex-shrink: 0;
   }
   .preview-img-wrap {
     position: relative;
-    width: 156px; height: 200px;
+    width: 110px; height: 150px;
     border: 2px solid var(--val-red);
     border-radius: 4px;
     overflow: hidden;
     background: linear-gradient(180deg, #1a2332, #0a0e14);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.5);
   }
   .preview-img-wrap.empty::before {
     content: '?';
@@ -144,7 +145,7 @@
   }
   .preview-counter b { color: var(--val-red); }
   .preview-name {
-    font-weight: 700; font-size: 36px;
+    font-weight: 700; font-size: 26px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     line-height: 1;
@@ -154,7 +155,7 @@
     text-overflow: ellipsis;
   }
   .preview-role {
-    font-weight: 600; font-size: 13px;
+    font-weight: 600; font-size: 11px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--val-red);
@@ -294,28 +295,30 @@
     color: rgba(236,232,225,0.3);
   }
 
-  /* ── Options panel ── */
+  /* ── Options panel (compact row at the bottom) ── */
   .options {
     grid-area: options;
     background: var(--val-bg-2);
-    border-left: 1px solid var(--val-line);
-    padding: 28px 24px;
+    border-top: 1px solid var(--val-line);
+    padding: 14px 22px 18px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    overflow-y: auto;
+    gap: 10px;
   }
   .options-title {
-    font-weight: 700; font-size: 12px;
-    letter-spacing: 0.2em; text-transform: uppercase;
+    font-weight: 700; font-size: 11px;
+    letter-spacing: 0.22em; text-transform: uppercase;
     color: var(--val-red);
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--val-line);
+  }
+  .options-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
 
   .opt {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 10px 12px;
     background: rgba(255,255,255,0.02);
     border: 1px solid var(--val-line);
     border-radius: 4px;
@@ -324,35 +327,33 @@
     transition: all 0.15s ease;
   }
   .opt:hover { border-color: rgba(236,232,225,0.2); }
+  .opt-head {
+    display: flex; align-items: center; gap: 8px;
+  }
   .opt-box {
-    width: 18px; height: 18px;
+    width: 16px; height: 16px;
     border: 1.5px solid rgba(236,232,225,0.4);
     border-radius: 3px;
     flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    margin-top: 1px;
   }
   .opt-box::after {
     content: '✓';
     color: #fff;
-    font-size: 13px; font-weight: 700;
+    font-size: 11px; font-weight: 700;
     line-height: 1;
     opacity: 0;
     transition: opacity 0.12s;
   }
-  .opt-text {
-    display: flex; flex-direction: column; gap: 2px;
-    min-width: 0;
-  }
   .opt-name {
-    font-weight: 700; font-size: 12px;
-    letter-spacing: 0.12em; text-transform: uppercase;
+    font-weight: 700; font-size: 11px;
+    letter-spacing: 0.1em; text-transform: uppercase;
     color: var(--val-cream);
   }
   .opt-desc {
-    font-size: 12px;
+    font-size: 11px;
     color: rgba(236,232,225,0.5);
-    line-height: 1.35;
+    line-height: 1.3;
   }
 
   .opt[data-key="blur"].on { background: rgba(255,70,85,0.1); border-color: rgba(255,70,85,0.5); }
@@ -460,33 +461,34 @@
     </div>
   </div>
 
-  <aside class="options">
+  <div class="options">
     <div class="options-title">Display Options</div>
+    <div class="options-row">
+      <label class="opt" data-key="blur" title="Blur the next agent's hex chip on the overlay so viewers can't see what's coming.">
+        <div class="opt-head">
+          <div class="opt-box"></div>
+          <div class="opt-name">Blur Next</div>
+        </div>
+        <div class="opt-desc">Hide the upcoming agent.</div>
+      </label>
 
-    <label class="opt" data-key="blur">
-      <div class="opt-box"></div>
-      <div class="opt-text">
-        <div class="opt-name">Blur Next</div>
-        <div class="opt-desc">Blur the next agent's hex chip on the overlay so viewers can't see what's coming.</div>
-      </div>
-    </label>
+      <label class="opt" data-key="played" title="Show a green ✓ on the previous hex chip — marks the just-played agent as done.">
+        <div class="opt-head">
+          <div class="opt-box"></div>
+          <div class="opt-name">Mark Previous</div>
+        </div>
+        <div class="opt-desc">Green ✓ on the played agent.</div>
+      </label>
 
-    <label class="opt" data-key="played">
-      <div class="opt-box"></div>
-      <div class="opt-text">
-        <div class="opt-name">Mark Previous Played</div>
-        <div class="opt-desc">Show a green ✓ on the previous hex chip — marks the just-played agent as done.</div>
-      </div>
-    </label>
-
-    <label class="opt" data-key="queued">
-      <div class="opt-box"></div>
-      <div class="opt-text">
-        <div class="opt-name">Queue Next</div>
-        <div class="opt-desc">Show an amber ⏳ on the next hex chip — flags the upcoming agent.</div>
-      </div>
-    </label>
-  </aside>
+      <label class="opt" data-key="queued" title="Show an amber ⏳ on the next hex chip — flags the upcoming agent.">
+        <div class="opt-head">
+          <div class="opt-box"></div>
+          <div class="opt-name">Queue Next</div>
+        </div>
+        <div class="opt-desc">Amber ⏳ on the next agent.</div>
+      </label>
+    </div>
+  </div>
 </div>
 
 <script>
