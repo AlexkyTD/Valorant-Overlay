@@ -1119,10 +1119,13 @@ function hexSvg(stroke, active) {
 
     loadingEl.classList.add('hidden');
 
-    // Auto-select the saved agent for the current sort category, if any
+    // Auto-select the saved agent for the current sort category, or
+    // fall back to the first agent on first launch.
     const savedUuid = selectedByCategory[currentSort];
     if (savedUuid && agents.some(a => a.uuid === savedUuid)) {
       selectAgentInternal(savedUuid);
+    } else if (agents.length > 0) {
+      selectAgent(agents[0].uuid); // saves to localStorage so it sticks
     } else {
       idleEl.classList.remove('hidden');
     }

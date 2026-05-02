@@ -579,10 +579,14 @@
     channel.postMessage({ type: 'SET_SORT', sort: currentSort });
     broadcastOptions();
 
-    // Restore the saved selected agent for this sort category (if any)
+    // Restore the saved selected agent for this sort category, or fall
+    // back to the first agent of that category on first launch.
     const savedUuid = selectedByCategory[currentSort];
+    const sorted = getSortedAgents();
     if (savedUuid && agentsRelease.some(a => a.uuid === savedUuid)) {
       applySelection(savedUuid);
+    } else if (sorted.length > 0) {
+      applySelection(sorted[0].uuid);
     } else {
       updateNav();
     }
