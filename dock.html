@@ -5,412 +5,363 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VALORANT Overlay — Control Panel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --val-red: #FF4655;
+    --val-bg: #0F1923;
+    --val-bg-2: #141D27;
+    --val-bg-3: #1A2332;
+    --val-cream: #ECE8E1;
+    --val-line: rgba(236,232,225,0.1);
+    --green: #4CAF50;
+    --amber: #E8A838;
+  }
 
   html, body {
     width: 960px;
     height: 540px;
     overflow: hidden;
-    background: #0F1923;
+    background: var(--val-bg);
     font-family: 'Rajdhani', sans-serif;
-    color: #ECE8E1;
+    color: var(--val-cream);
   }
 
   .dock {
     width: 960px;
     height: 540px;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: 56px 1fr;
+    grid-template-columns: 1fr 360px;
+    grid-template-areas:
+      "header header"
+      "main   options";
+    position: relative;
   }
 
   /* ── Header ── */
   .header {
+    grid-area: header;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 24px;
-    background: #141D27;
-    border-bottom: 1px solid rgba(236,232,225,0.08);
-    flex-shrink: 0;
+    padding: 0 24px;
+    background: var(--val-bg-2);
+    border-bottom: 1px solid var(--val-line);
   }
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-logo {
+    width: 26px; height: 26px;
+    border: 2px solid var(--val-red);
+    transform: rotate(45deg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header-logo span {
+    transform: rotate(-45deg);
+    font-weight: 700; font-size: 9px;
+    letter-spacing: 0.05em; color: var(--val-red);
   }
   .header-title {
-    font-weight: 700;
-    font-size: 16px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #ECE8E1;
+    font-weight: 700; font-size: 15px;
+    letter-spacing: 0.18em; text-transform: uppercase;
   }
-  .header-title span { color: #FF4655; }
+  .header-title b { color: var(--val-red); font-weight: 700; }
 
   .live-indicator {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em;
     color: rgba(236,232,225,0.4);
     visibility: hidden;
   }
   .live-indicator.on { visibility: visible; }
   .live-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #4CAF50;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
     animation: pulse-dot 1.6s ease-in-out infinite;
   }
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
+  @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-  .current-agent-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .current-agent-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 4px;
-    object-fit: cover;
-    border: 1px solid rgba(255,70,85,0.4);
-    display: none;
-  }
-  .current-agent-icon.visible { display: block; }
-  .current-agent-meta {
+  /* ── Main (preview + nav) ── */
+  .main {
+    grid-area: main;
+    padding: 28px 32px;
     display: flex;
     flex-direction: column;
+    gap: 22px;
+    overflow: hidden;
   }
-  .current-agent-name {
-    font-weight: 700;
-    font-size: 15px;
+
+  .preview {
+    display: grid;
+    grid-template-columns: 156px 1fr;
+    gap: 22px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .preview-img-wrap {
+    position: relative;
+    width: 156px; height: 200px;
+    border: 2px solid var(--val-red);
+    border-radius: 4px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #1a2332, #0a0e14);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+  .preview-img-wrap.empty::before {
+    content: '?';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px; font-weight: 700;
+    color: rgba(255,70,85,0.2);
+  }
+  .preview-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transform: scale(1.4);
+    transform-origin: 50% 22%;
+    display: block;
+  }
+  .preview-img.hidden { display: none; }
+  .preview-bar {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 3px; background: var(--val-red);
+  }
+
+  .preview-meta {
+    display: flex; flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .preview-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.18em;
+    color: rgba(236,232,225,0.4);
+    margin-bottom: 4px;
+  }
+  .preview-counter b { color: var(--val-red); }
+  .preview-name {
+    font-weight: 700; font-size: 36px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    line-height: 1.1;
+    line-height: 1;
+    color: var(--val-cream);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .current-agent-role {
-    font-size: 11px;
-    letter-spacing: 0.12em;
+  .preview-role {
+    font-weight: 600; font-size: 13px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
+    color: var(--val-red);
+  }
+  .preview-element {
+    margin-top: 4px;
+    align-self: flex-start;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid rgba(236,232,225,0.18);
+    border-radius: 2px;
+    color: rgba(236,232,225,0.55);
+  }
+  .preview-element.hidden { display: none; }
+
+  /* ── Nav row ── */
+  .nav-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .nav-arrow {
+    appearance: none;
+    background: rgba(255,70,85,0.08);
+    border: 1px solid rgba(255,70,85,0.4);
+    color: var(--val-red);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 0 18px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.15s ease;
+  }
+  .nav-arrow:hover:not(:disabled) { background: var(--val-red); color: #fff; }
+  .nav-arrow:disabled { opacity: 0.25; cursor: not-allowed; }
+  .nav-arrow svg { width: 14px; height: 14px; }
+
+  .search-wrap {
+    position: relative;
+  }
+  .search-box {
+    width: 100%;
+    appearance: none;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--val-line);
+    color: var(--val-cream);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-box::placeholder { color: rgba(236,232,225,0.3); }
+  .search-box:focus { border-color: rgba(255,70,85,0.5); }
+  .search-results {
+    position: absolute;
+    top: calc(100% + 4px); left: 0; right: 0;
+    background: #0E1620;
+    border: 1px solid var(--val-line);
+    border-radius: 3px;
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 30;
+    display: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .search-results.open { display: block; }
+  .search-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(236,232,225,0.04);
+  }
+  .search-item:last-child { border-bottom: 0; }
+  .search-item:hover, .search-item.focused {
+    background: rgba(255,70,85,0.12);
+  }
+  .search-item img { width: 28px; height: 28px; object-fit: contain; }
+  .search-item .si-name {
+    font-weight: 600; font-size: 13px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .search-item .si-role {
+    margin-left: auto;
+    font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.5);
   }
 
-  .header-logo {
-    width: 28px;
-    height: 28px;
-    border: 2px solid #FF4655;
-    transform: rotate(45deg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .header-logo-inner {
-    transform: rotate(-45deg);
-    font-weight: 700;
-    font-size: 10px;
-    letter-spacing: 0.05em;
-    color: #FF4655;
-  }
-
-  /* ── Sort bar ── */
-  .sort-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 24px;
-    background: #111A24;
-    border-bottom: 1px solid rgba(236,232,225,0.06);
-    flex-shrink: 0;
+  /* ── Sort selector ── */
+  .sort-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--val-line);
+    border-radius: 3px;
   }
   .sort-label {
-    font-size: 12px;
-    letter-spacing: 0.12em;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em;
     text-transform: uppercase;
     color: rgba(236,232,225,0.4);
-    margin-right: 4px;
   }
   .sort-btn {
     appearance: none;
     background: transparent;
     border: 1px solid rgba(236,232,225,0.15);
-    color: rgba(236,232,225,0.5);
+    color: rgba(236,232,225,0.55);
     font-family: 'Rajdhani', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 5px 14px;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 12px;
     border-radius: 3px;
     cursor: pointer;
     transition: all 0.15s ease;
   }
   .sort-btn:hover {
     border-color: rgba(255,70,85,0.4);
-    color: #ECE8E1;
+    color: var(--val-cream);
   }
   .sort-btn.active {
-    background: #FF4655;
-    border-color: #FF4655;
+    background: var(--val-red);
+    border-color: var(--val-red);
     color: #fff;
   }
-
-  .search-box {
+  .sort-row .hint {
     margin-left: auto;
-    appearance: none;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(236,232,225,0.1);
-    color: #ECE8E1;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    padding: 5px 12px;
-    border-radius: 3px;
-    width: 180px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .search-box::placeholder { color: rgba(236,232,225,0.25); }
-  .search-box:focus { border-color: rgba(255,70,85,0.5); }
-
-  /* ── Agent grid ── */
-  .grid-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px 24px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255,70,85,0.3) transparent;
-  }
-  .grid-container::-webkit-scrollbar { width: 6px; }
-  .grid-container::-webkit-scrollbar-track { background: transparent; }
-  .grid-container::-webkit-scrollbar-thumb { background: rgba(255,70,85,0.3); border-radius: 3px; }
-
-  .agent-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.3);
   }
 
-  .agent-card {
-    appearance: none;
-    background: #1A2332;
-    border: 2px solid transparent;
-    border-radius: 6px;
-    padding: 0;
-    cursor: pointer;
+  /* ── Options panel ── */
+  .options {
+    grid-area: options;
+    background: var(--val-bg-2);
+    border-left: 1px solid var(--val-line);
+    padding: 28px 24px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    gap: 18px;
+    overflow-y: auto;
   }
-  .agent-card:hover {
-    background: #1E2A3A;
-    box-shadow: 0 0 16px var(--card-glow, rgba(255,70,85,0.15));
-  }
-  .agent-card.selected {
-    border-color: #FF4655;
-    background: #1E2A3A;
-    box-shadow: 0 0 20px rgba(255,70,85,0.25);
+  .options-title {
+    font-weight: 700; font-size: 12px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--val-red);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--val-line);
   }
 
-  .card-role-dot {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    z-index: 2;
-  }
-  .card-role-dot[data-role="Duelist"]     { background: #FF4655; }
-  .card-role-dot[data-role="Initiator"]   { background: #E8A838; }
-  .card-role-dot[data-role="Controller"]  { background: #9B59B6; }
-  .card-role-dot[data-role="Sentinel"]    { background: #3498DB; }
-
-  .card-img-wrap {
-    width: 100%;
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
-  }
-  .card-img {
-    width: 72px;
-    height: 72px;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
-    transition: transform 0.15s ease;
-  }
-  .agent-card:hover .card-img { transform: scale(1.08); }
-
-  .card-name {
-    width: 100%;
-    padding: 4px 6px 8px;
-    text-align: center;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(236,232,225,0.7);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
-  }
-  .agent-card.selected .card-name { color: #ECE8E1; }
-
-  /* ── Role group headers ── */
-  .role-header {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0 4px;
-  }
-  .role-header-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-  .role-header-text {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: rgba(236,232,225,0.5);
-  }
-
-  /* ── Controls bar (Prev/Next + toggles) ── */
-  .controls-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 24px;
-    background: #0E1620;
-    border-bottom: 1px solid rgba(236,232,225,0.06);
-    flex-shrink: 0;
-  }
-  .nav-arrow {
-    appearance: none;
-    background: rgba(255,70,85,0.08);
-    border: 1px solid rgba(255,70,85,0.35);
-    color: #FF4655;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 5px 14px;
-    border-radius: 3px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.15s ease;
-  }
-  .nav-arrow:hover { background: #FF4655; color: #fff; }
-  .nav-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
-  .nav-arrow svg { width: 12px; height: 12px; }
-
-  .toggle-group {
-    margin-left: auto;
-    display: flex;
-    gap: 8px;
-  }
-  .toggle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(236,232,225,0.1);
-    border-radius: 3px;
+  .opt {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--val-line);
+    border-radius: 4px;
     cursor: pointer;
     user-select: none;
     transition: all 0.15s ease;
   }
-  .toggle:hover { border-color: rgba(236,232,225,0.25); }
-  .toggle .toggle-box {
-    width: 14px;
-    height: 14px;
+  .opt:hover { border-color: rgba(236,232,225,0.2); }
+  .opt-box {
+    width: 18px; height: 18px;
     border: 1.5px solid rgba(236,232,225,0.4);
-    border-radius: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 3px;
     flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
   }
-  .toggle .toggle-box::after {
+  .opt-box::after {
     content: '✓';
     color: #fff;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 13px; font-weight: 700;
     line-height: 1;
     opacity: 0;
     transition: opacity 0.12s;
   }
-  .toggle .toggle-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgba(236,232,225,0.65);
+  .opt-text {
+    display: flex; flex-direction: column; gap: 2px;
+    min-width: 0;
   }
-  .toggle.on { background: rgba(255,70,85,0.12); border-color: rgba(255,70,85,0.5); }
-  .toggle.on .toggle-box { background: #FF4655; border-color: #FF4655; }
-  .toggle.on .toggle-box::after { opacity: 1; }
-  .toggle.on .toggle-label { color: #ECE8E1; }
-  .toggle[data-toggle="played"].on { background: rgba(76,175,80,0.12); border-color: rgba(76,175,80,0.5); }
-  .toggle[data-toggle="played"].on .toggle-box { background: #4CAF50; border-color: #4CAF50; }
-  .toggle[data-toggle="queued"].on { background: rgba(232,168,56,0.12); border-color: rgba(232,168,56,0.5); }
-  .toggle[data-toggle="queued"].on .toggle-box { background: #E8A838; border-color: #E8A838; }
+  .opt-name {
+    font-weight: 700; font-size: 12px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--val-cream);
+  }
+  .opt-desc {
+    font-size: 12px;
+    color: rgba(236,232,225,0.5);
+    line-height: 1.35;
+  }
 
-  /* ── Card state badges ── */
-  .card-badge {
-    position: absolute;
-    top: 6px;
-    left: 6px;
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3;
-    font-size: 11px;
-    font-weight: 700;
-    color: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-  }
-  .agent-card.played .card-badge.played-badge {
-    background: #4CAF50;
-  }
-  .agent-card.queued .card-badge.queued-badge {
-    background: #E8A838;
-  }
-  .agent-card.played {
-    border-color: #4CAF50 !important;
-    box-shadow: 0 0 16px rgba(76,175,80,0.3) !important;
-  }
-  .agent-card.queued .card-img-wrap {
-    background: radial-gradient(circle, rgba(232,168,56,0.12) 0%, transparent 70%);
-  }
-  .agent-card.blurred .card-img {
-    filter: blur(8px) brightness(0.6);
-  }
-  .agent-card.blurred .card-name {
-    color: rgba(236,232,225,0.25);
-  }
+  .opt[data-key="blur"].on { background: rgba(255,70,85,0.1); border-color: rgba(255,70,85,0.5); }
+  .opt[data-key="blur"].on .opt-box { background: var(--val-red); border-color: var(--val-red); }
+  .opt[data-key="played"].on { background: rgba(76,175,80,0.1); border-color: rgba(76,175,80,0.5); }
+  .opt[data-key="played"].on .opt-box { background: var(--green); border-color: var(--green); }
+  .opt[data-key="queued"].on { background: rgba(232,168,56,0.1); border-color: rgba(232,168,56,0.5); }
+  .opt[data-key="queued"].on .opt-box { background: var(--amber); border-color: var(--amber); }
+  .opt.on .opt-box::after { opacity: 1; }
 
   /* ── Loading / Error ── */
   .loading-overlay {
@@ -421,40 +372,39 @@
     align-items: center;
     justify-content: center;
     gap: 14px;
-    background: #0F1923;
-    z-index: 20;
+    background: var(--val-bg);
+    z-index: 50;
   }
   .loading-overlay.hidden { display: none; }
   .spinner {
-    width: 36px;
-    height: 36px;
+    width: 36px; height: 36px;
     border: 3px solid rgba(255,70,85,0.2);
-    border-top-color: #FF4655;
+    border-top-color: var(--val-red);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-overlay .text {
-    font-size: 12px;
-    letter-spacing: 0.15em;
+    font-size: 12px; letter-spacing: 0.15em;
     text-transform: uppercase;
     color: rgba(236,232,225,0.4);
   }
-
   .error-banner {
-    padding: 12px 24px;
+    position: absolute;
+    top: 56px; left: 0; right: 0;
+    padding: 10px 24px;
     background: rgba(255,70,85,0.1);
     border-bottom: 1px solid rgba(255,70,85,0.2);
     text-align: center;
-    font-size: 13px;
-    color: #FF4655;
-    display: none;
+    font-size: 13px; color: var(--val-red);
+    display: none; z-index: 40;
   }
   .error-banner.visible { display: block; }
 </style>
 </head>
 <body>
-<div class="dock" style="position:relative">
+<div class="dock">
+
   <div class="loading-overlay" id="loading">
     <div class="spinner"></div>
     <div class="text">Loading agents...</div>
@@ -464,59 +414,79 @@
 
   <div class="header">
     <div class="header-left">
-      <div class="header-logo"><span class="header-logo-inner">VAL</span></div>
-      <div class="header-title"><span>VALORANT</span> OVERLAY CONTROL</div>
-      <div class="live-indicator" id="live-indicator">
-        <div class="live-dot"></div>
-        LIVE
-      </div>
+      <div class="header-logo"><span>VAL</span></div>
+      <div class="header-title"><b>VALORANT</b> CONTROL</div>
     </div>
-    <div class="current-agent-info" id="current-info">
-      <div class="current-agent-meta">
-        <div class="current-agent-name" id="current-name">—</div>
-        <div class="current-agent-role" id="current-role" style="color:rgba(236,232,225,0.4)">No agent selected</div>
-      </div>
-      <img class="current-agent-icon" id="current-icon" alt="">
-    </div>
+    <div class="live-indicator" id="live"><div class="live-dot"></div>LIVE</div>
   </div>
 
-  <div class="sort-bar">
-    <span class="sort-label">Sort:</span>
-    <button class="sort-btn active" data-sort="alpha">A → Z</button>
-    <button class="sort-btn" data-sort="release">Release</button>
-    <button class="sort-btn" data-sort="role">By Role</button>
-    <input class="search-box" type="text" placeholder="Search or jump (Enter)..." id="search">
-  </div>
+  <div class="main">
+    <div class="preview">
+      <div class="preview-img-wrap empty" id="preview-wrap">
+        <img class="preview-img hidden" id="preview-img" alt="">
+        <div class="preview-bar"></div>
+      </div>
+      <div class="preview-meta">
+        <div class="preview-counter">
+          <b id="counter-num">--</b> / <span id="counter-tot">--</span>
+        </div>
+        <div class="preview-name" id="preview-name">No agent selected</div>
+        <div class="preview-role" id="preview-role" style="color:rgba(236,232,225,0.4)">—</div>
+        <div class="preview-element hidden" id="preview-element">◈ —</div>
+      </div>
+    </div>
 
-  <div class="controls-bar">
-    <button class="nav-arrow" id="prev-btn" title="Previous agent">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      Prev
-    </button>
-    <button class="nav-arrow" id="next-btn" title="Next agent">
-      Next
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
+    <div class="nav-row">
+      <button class="nav-arrow" id="prev-btn" title="Previous agent (←)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Prev
+      </button>
+      <div class="search-wrap">
+        <input class="search-box" type="text" placeholder="Type a name to jump..." id="search" autocomplete="off">
+        <div class="search-results" id="search-results"></div>
+      </div>
+      <button class="nav-arrow" id="next-btn" title="Next agent (→)">
+        Next
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
 
-    <div class="toggle-group">
-      <div class="toggle" data-toggle="blur" title="Blur the agent that comes after the current one">
-        <div class="toggle-box"></div>
-        <span class="toggle-label">Blur Next</span>
-      </div>
-      <div class="toggle" data-toggle="played" title="When you switch agent, mark the previous one as played (✓ + green)">
-        <div class="toggle-box"></div>
-        <span class="toggle-label">Mark Previous Played</span>
-      </div>
-      <div class="toggle" data-toggle="queued" title="Show an hourglass on the agent that comes after the current one">
-        <div class="toggle-box"></div>
-        <span class="toggle-label">Queue Next</span>
-      </div>
+    <div class="sort-row">
+      <span class="sort-label">Sort:</span>
+      <button class="sort-btn active" data-sort="alpha">A → Z</button>
+      <button class="sort-btn" data-sort="release">Release</button>
+      <button class="sort-btn" data-sort="role">By Role</button>
+      <span class="hint">← / → to navigate</span>
     </div>
   </div>
 
-  <div class="grid-container" id="grid-container">
-    <div class="agent-grid" id="agent-grid"></div>
-  </div>
+  <aside class="options">
+    <div class="options-title">Display Options</div>
+
+    <label class="opt" data-key="blur">
+      <div class="opt-box"></div>
+      <div class="opt-text">
+        <div class="opt-name">Blur Next</div>
+        <div class="opt-desc">Blur the next agent's hex chip on the overlay so viewers can't see what's coming.</div>
+      </div>
+    </label>
+
+    <label class="opt" data-key="played">
+      <div class="opt-box"></div>
+      <div class="opt-text">
+        <div class="opt-name">Mark Previous Played</div>
+        <div class="opt-desc">Show a green ✓ on the previous hex chip — marks the just-played agent as done.</div>
+      </div>
+    </label>
+
+    <label class="opt" data-key="queued">
+      <div class="opt-box"></div>
+      <div class="opt-text">
+        <div class="opt-name">Queue Next</div>
+        <div class="opt-desc">Show an amber ⏳ on the next hex chip — flags the upcoming agent.</div>
+      </div>
+    </label>
+  </aside>
 </div>
 
 <script>
@@ -526,42 +496,58 @@
   const ROLE_ORDER = ['Duelist', 'Initiator', 'Controller', 'Sentinel'];
   const ROLE_COLORS = { Duelist: '#FF4655', Initiator: '#E8A838', Controller: '#9B59B6', Sentinel: '#3498DB' };
 
-  const loadingEl = document.getElementById('loading');
-  const errorEl = document.getElementById('error');
-  const gridEl = document.getElementById('agent-grid');
-  const liveEl = document.getElementById('live-indicator');
-  const currentName = document.getElementById('current-name');
-  const currentRole = document.getElementById('current-role');
-  const currentIcon = document.getElementById('current-icon');
-  const searchInput = document.getElementById('search');
+  // Custom (non-API) agents — must mirror overlay.html's CUSTOM_AGENTS list
+  const CUSTOM_AGENTS = [
+    {
+      uuid: 'custom-miks-0001',
+      displayName: 'Miks',
+      role: { displayName: 'Controller' },
+      displayIcon: './miks-icon.png',
+      backgroundGradientColors: ['ff5fa8ff', '7a3affff', 'fff0d4ff'],
+      bustPortrait: './miks-portrait.png',
+    },
+  ];
 
-  let agentsRelease = []; // original API order (release order)
+  const $ = (id) => document.getElementById(id);
+  const loadingEl = $('loading'), errorEl = $('error');
+  const liveEl = $('live');
+  const previewWrap = $('preview-wrap'), previewImg = $('preview-img');
+  const previewName = $('preview-name'), previewRole = $('preview-role'), previewElement = $('preview-element');
+  const counterNum = $('counter-num'), counterTot = $('counter-tot');
+  const searchInput = $('search'), searchResults = $('search-results');
+  const prevBtn = $('prev-btn'), nextBtn = $('next-btn');
+
+  let agentsRelease = [];
   let selectedUuid = null;
   let currentSort = 'alpha';
-
-  // Per-uuid persistent state
-  const playedSet = new Set();   // agents marked as played (from "Mark Previous Played" toggle)
-  // Toggle state for the three options
   const opts = { blur: false, played: false, queued: false };
-  // Track which agent was previously selected so we can mark it played on next select
-  let previousUuid = null;
 
   const channel = new BroadcastChannel(CHANNEL_NAME);
 
-  // ── Fetch agents ──
+  // Listen so external selections (e.g. clicking a hex chip in the overlay) keep the dock in sync
+  channel.onmessage = (e) => {
+    if (e.data?.type === 'SELECT_AGENT' && e.data.agentUuid) {
+      // External selection — update local state without re-broadcasting
+      applySelection(e.data.agentUuid, /*broadcast*/ false);
+    }
+  };
+
+  // ── Fetch ──
   try {
     const res = await fetch(API_URL);
     if (!res.ok) throw new Error(`API ${res.status}`);
     const data = await res.json();
-    agentsRelease = data.data.map(a => ({
+    agentsRelease = [...data.data, ...CUSTOM_AGENTS].map(a => ({
       uuid: a.uuid,
       name: a.displayName,
       role: a.role?.displayName || 'Unknown',
       icon: a.displayIcon,
+      bust: a.bustPortrait || a.fullPortrait,
       colors: (a.backgroundGradientColors || []).map(c => '#' + c.substring(0, 6)),
     }));
     loadingEl.classList.add('hidden');
-    renderGrid();
+    counterTot.textContent = String(agentsRelease.length).padStart(2, '0');
+    updateNav();
   } catch (err) {
     loadingEl.classList.add('hidden');
     errorEl.textContent = 'Failed to load agents — check your connection.';
@@ -569,192 +555,170 @@
     return;
   }
 
-  // ── Sort logic ──
-  function getSortedAgents(filter = '') {
-    let list = agentsRelease.slice();
-    if (filter) {
-      const q = filter.toLowerCase();
-      list = list.filter(a => a.name.toLowerCase().includes(q));
-    }
-
-    switch (currentSort) {
-      case 'alpha':
-        list.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'role':
-        list.sort((a, b) => {
-          const ri = ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role);
-          return ri !== 0 ? ri : a.name.localeCompare(b.name);
-        });
-        break;
-      // 'release' keeps API order (already in list)
+  function getSortedAgents() {
+    const list = agentsRelease.slice();
+    if (currentSort === 'alpha') list.sort((a,b) => a.name.localeCompare(b.name));
+    else if (currentSort === 'role') {
+      list.sort((a,b) => {
+        const ri = ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role);
+        return ri !== 0 ? ri : a.name.localeCompare(b.name);
+      });
     }
     return list;
   }
 
-  // ── Render ──
-  function renderGrid() {
-    const filter = searchInput.value.trim();
-    const sorted = getSortedAgents(filter);
-    gridEl.innerHTML = '';
-
-    // Compute the agent that comes after the current selection (in the
-    // visible sort order). Used by the Blur Next + Queue Next options.
-    const selIdx = sorted.findIndex(a => a.uuid === selectedUuid);
-    const nextUuid = selIdx >= 0 && selIdx < sorted.length - 1 ? sorted[selIdx + 1].uuid : null;
-    const ctx = { queuedUuid: nextUuid, blurUuid: nextUuid };
-
-    if (currentSort === 'role' && !filter) {
-      let lastRole = null;
-      sorted.forEach(agent => {
-        if (agent.role !== lastRole) {
-          lastRole = agent.role;
-          const header = document.createElement('div');
-          header.className = 'role-header';
-          header.innerHTML = `<div class="role-header-dot" style="background:${ROLE_COLORS[agent.role] || '#888'}"></div>
-            <div class="role-header-text">${agent.role}</div>`;
-          gridEl.appendChild(header);
-        }
-        gridEl.appendChild(createCard(agent, ctx));
-      });
-    } else {
-      sorted.forEach(agent => gridEl.appendChild(createCard(agent, ctx)));
-    }
+  function getSortedIdx(uuid) {
+    return getSortedAgents().findIndex(a => a.uuid === uuid);
   }
 
-  function createCard(agent, ctx) {
-    const btn = document.createElement('button');
-    const isSelected = agent.uuid === selectedUuid;
-    const isPlayed = playedSet.has(agent.uuid);
-    const isQueued = opts.queued && ctx.queuedUuid === agent.uuid;
-    const isBlurred = opts.blur && ctx.blurUuid === agent.uuid && !isSelected;
-
-    btn.className = 'agent-card'
-      + (isSelected ? ' selected' : '')
-      + (isPlayed ? ' played' : '')
-      + (isQueued ? ' queued' : '')
-      + (isBlurred ? ' blurred' : '');
-    btn.style.setProperty('--card-glow', (agent.colors[0] || '#FF4655') + '30');
-
-    let badgeHtml = '';
-    if (isPlayed) badgeHtml += '<div class="card-badge played-badge" title="Played">✓</div>';
-    else if (isQueued) badgeHtml += '<div class="card-badge queued-badge" title="Queued">⏳</div>';
-
-    btn.innerHTML = `
-      ${badgeHtml}
-      <div class="card-role-dot" data-role="${agent.role}"></div>
-      <div class="card-img-wrap">
-        <img class="card-img" src="${agent.icon}" alt="${agent.name}" loading="lazy">
-      </div>
-      <div class="card-name">${agent.name}</div>`;
-    btn.addEventListener('click', () => selectAgent(agent.uuid));
-    return btn;
-  }
-
-  function getNeighborUuids() {
-    const list = getSortedAgents(searchInput.value.trim());
-    const idx = list.findIndex(a => a.uuid === selectedUuid);
-    if (idx < 0) return { prev: null, next: null };
-    return {
-      prev: idx > 0 ? list[idx - 1].uuid : null,
-      next: idx < list.length - 1 ? list[idx + 1].uuid : null,
-    };
-  }
-
-  function selectAgent(uuid) {
-    if (!uuid || uuid === selectedUuid) return;
+  function applySelection(uuid, broadcast = true) {
     const agent = agentsRelease.find(a => a.uuid === uuid);
     if (!agent) return;
-
-    // Mark the just-left agent as played if the toggle is on
-    if (opts.played && selectedUuid && selectedUuid !== uuid) {
-      playedSet.add(selectedUuid);
-    }
-
-    previousUuid = selectedUuid;
     selectedUuid = uuid;
 
-    channel.postMessage({ type: 'SELECT_AGENT', agentUuid: uuid });
+    if (broadcast) channel.postMessage({ type: 'SELECT_AGENT', agentUuid: uuid });
 
-    currentName.textContent = agent.name;
-    currentRole.textContent = agent.role;
-    currentRole.style.color = ROLE_COLORS[agent.role] || '#ECE8E1';
-    currentIcon.src = agent.icon;
-    currentIcon.classList.add('visible');
+    previewWrap.classList.remove('empty');
+    previewImg.src = agent.bust || agent.icon;
+    previewImg.classList.remove('hidden');
+
+    previewName.textContent = agent.name;
+    previewRole.textContent = agent.role;
+    previewRole.style.color = ROLE_COLORS[agent.role] || 'var(--val-red)';
+
+    const sorted = getSortedAgents();
+    const idx = sorted.findIndex(a => a.uuid === uuid);
+    counterNum.textContent = idx >= 0 ? String(idx + 1).padStart(2, '0') : '--';
+
     liveEl.classList.add('on');
-
-    renderGrid();
-    updateNavButtons();
+    updateNav();
   }
 
-  function updateNavButtons() {
-    const { prev, next } = getNeighborUuids();
-    document.getElementById('prev-btn').disabled = !prev;
-    document.getElementById('next-btn').disabled = !next;
+  function updateNav() {
+    const sorted = getSortedAgents();
+    const idx = sorted.findIndex(a => a.uuid === selectedUuid);
+    prevBtn.disabled = idx <= 0;
+    nextBtn.disabled = idx < 0 || idx >= sorted.length - 1;
   }
 
-  // ── Sort buttons ──
+  function broadcastOptions() {
+    channel.postMessage({ type: 'SET_OPTIONS', opts: { ...opts } });
+  }
+
+  // ── Sort ──
   document.querySelectorAll('.sort-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       currentSort = btn.dataset.sort;
       document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderGrid();
+      // Re-sync counter (sorted index changes when sort changes)
+      if (selectedUuid) {
+        const idx = getSortedIdx(selectedUuid);
+        counterNum.textContent = idx >= 0 ? String(idx + 1).padStart(2, '0') : '--';
+      }
+      updateNav();
     });
   });
 
-  // ── Search ──
-  searchInput.addEventListener('input', () => { renderGrid(); updateNavButtons(); });
+  // ── Prev / Next ──
+  prevBtn.addEventListener('click', () => {
+    const sorted = getSortedAgents();
+    const idx = sorted.findIndex(a => a.uuid === selectedUuid);
+    if (idx > 0) applySelection(sorted[idx - 1].uuid);
+    else if (idx < 0 && sorted.length > 0) applySelection(sorted[0].uuid);
+  });
+  nextBtn.addEventListener('click', () => {
+    const sorted = getSortedAgents();
+    const idx = sorted.findIndex(a => a.uuid === selectedUuid);
+    if (idx >= 0 && idx < sorted.length - 1) applySelection(sorted[idx + 1].uuid);
+    else if (idx < 0 && sorted.length > 0) applySelection(sorted[0].uuid);
+  });
+
+  // Keyboard ← / → (when not typing)
+  document.addEventListener('keydown', (e) => {
+    if (document.activeElement === searchInput) return;
+    if (e.key === 'ArrowLeft') prevBtn.click();
+    else if (e.key === 'ArrowRight') nextBtn.click();
+  });
+
+  // ── Search with type-ahead ──
+  let focusedItemIdx = -1;
+  function renderSearch() {
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q) { searchResults.classList.remove('open'); searchResults.innerHTML = ''; focusedItemIdx = -1; return; }
+    const matches = agentsRelease
+      .filter(a => a.name.toLowerCase().includes(q))
+      .sort((a,b) => a.name.localeCompare(b.name))
+      .slice(0, 8);
+    if (matches.length === 0) { searchResults.classList.remove('open'); searchResults.innerHTML = ''; focusedItemIdx = -1; return; }
+    searchResults.innerHTML = matches.map((a, i) => `
+      <div class="search-item${i === 0 ? ' focused' : ''}" data-uuid="${a.uuid}">
+        <img src="${a.icon}" alt="">
+        <div class="si-name">${a.name}</div>
+        <div class="si-role" style="color:${ROLE_COLORS[a.role] || 'var(--val-red)'}">${a.role}</div>
+      </div>`).join('');
+    focusedItemIdx = 0;
+    searchResults.classList.add('open');
+    searchResults.querySelectorAll('.search-item').forEach((el, i) => {
+      el.addEventListener('mouseenter', () => {
+        searchResults.querySelectorAll('.search-item').forEach(x => x.classList.remove('focused'));
+        el.classList.add('focused');
+        focusedItemIdx = i;
+      });
+      el.addEventListener('click', () => {
+        applySelection(el.dataset.uuid);
+        searchInput.value = '';
+        searchResults.classList.remove('open');
+        searchInput.blur();
+      });
+    });
+  }
+
+  searchInput.addEventListener('input', renderSearch);
   searchInput.addEventListener('keydown', (e) => {
+    const items = searchResults.querySelectorAll('.search-item');
     if (e.key === 'Enter') {
       e.preventDefault();
-      const list = getSortedAgents(searchInput.value.trim());
-      if (list.length > 0) {
-        selectAgent(list[0].uuid);
+      if (items.length > 0) {
+        const target = items[focusedItemIdx] || items[0];
+        applySelection(target.dataset.uuid);
+        searchInput.value = '';
+        searchResults.classList.remove('open');
         searchInput.blur();
       }
     } else if (e.key === 'Escape') {
       searchInput.value = '';
-      renderGrid();
-      updateNavButtons();
+      searchResults.classList.remove('open');
+      searchInput.blur();
+    } else if (e.key === 'ArrowDown' && items.length > 0) {
+      e.preventDefault();
+      focusedItemIdx = Math.min(focusedItemIdx + 1, items.length - 1);
+      items.forEach(x => x.classList.remove('focused'));
+      items[focusedItemIdx].classList.add('focused');
+    } else if (e.key === 'ArrowUp' && items.length > 0) {
+      e.preventDefault();
+      focusedItemIdx = Math.max(focusedItemIdx - 1, 0);
+      items.forEach(x => x.classList.remove('focused'));
+      items[focusedItemIdx].classList.add('focused');
     }
   });
-
-  // ── Prev / Next nav ──
-  document.getElementById('prev-btn').addEventListener('click', () => {
-    const { prev } = getNeighborUuids();
-    if (prev) selectAgent(prev);
-  });
-  document.getElementById('next-btn').addEventListener('click', () => {
-    const { next } = getNeighborUuids();
-    if (next) selectAgent(next);
+  // Close suggestions when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-wrap')) searchResults.classList.remove('open');
   });
 
-  // Keyboard shortcuts: ← / → step through agents (when not typing)
-  document.addEventListener('keydown', (e) => {
-    if (document.activeElement === searchInput) return;
-    if (e.key === 'ArrowLeft') {
-      const { prev } = getNeighborUuids();
-      if (prev) selectAgent(prev);
-    } else if (e.key === 'ArrowRight') {
-      const { next } = getNeighborUuids();
-      if (next) selectAgent(next);
-    }
-  });
-
-  // ── Option toggles ──
-  document.querySelectorAll('.toggle').forEach(el => {
+  // ── Display option toggles ──
+  document.querySelectorAll('.opt').forEach(el => {
     el.addEventListener('click', () => {
-      const key = el.dataset.toggle;
+      const key = el.dataset.key;
       opts[key] = !opts[key];
       el.classList.toggle('on', opts[key]);
-      // If turning OFF "played", clear the played history
-      if (key === 'played' && !opts.played) playedSet.clear();
-      renderGrid();
+      broadcastOptions();
     });
   });
 
-  updateNavButtons();
+  // Push initial option state to overlay (in case dock loads first)
+  broadcastOptions();
 })();
 </script>
 </body>

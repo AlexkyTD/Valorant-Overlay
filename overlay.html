@@ -108,6 +108,30 @@
   .hex-chip.size-sm { width: 50px; height: 58px; opacity: 0.6; }
   .hex-chip.size-md { width: 70px; height: 80px; opacity: 0.85; }
 
+  /* Display option states pushed from the dock */
+  .hex-chip.chip-played { filter: drop-shadow(0 0 8px rgba(76,175,80,0.6)); }
+  .hex-chip.chip-played img { filter: saturate(0.6) brightness(0.9); }
+  .hex-chip.chip-queued { filter: drop-shadow(0 0 8px rgba(232,168,56,0.6)); }
+  .hex-chip.chip-blurred img { filter: blur(6px) brightness(0.55); }
+  .chip-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    z-index: 5;
+  }
+  .chip-badge-played { background: #4CAF50; }
+  .chip-badge-queued { background: #E8A838; }
+
   /* ─────────── Hero (rect frame + aura) ─────────── */
   .hero-zone {
     position: relative;
@@ -1051,10 +1075,20 @@ function hexSvg(stroke, active) {
     return;
   }
 
+  // ── Display options (driven by the dock) ──
+  const opts = { blur: false, played: false, queued: false };
+  let lastIdx = -1;
+
   // ── BroadcastChannel ──
   const channel = new BroadcastChannel(CHANNEL);
   channel.onmessage = (e) => {
-    if (e.data?.type === 'SELECT_AGENT' && e.data.agentUuid) selectAgent(e.data.agentUuid);
+    const m = e.data;
+    if (!m) return;
+    if (m.type === 'SELECT_AGENT' && m.agentUuid) selectAgent(m.agentUuid);
+    else if (m.type === 'SET_OPTIONS' && m.opts) {
+      Object.assign(opts, m.opts);
+      if (lastIdx >= 0) render(lastIdx); // re-render to apply visuals
+    }
   };
 
   // ── Selection / render ──
@@ -1065,6 +1099,7 @@ function hexSvg(stroke, active) {
   }
 
   function render(idx) {
+    lastIdx = idx;
     const agent = agents[idx];
     const total = agents.length;
 
@@ -1087,11 +1122,11 @@ function hexSvg(stroke, active) {
     const after1  = agents[(idx + 1) % total];
 
     stackTop.innerHTML = `
-      ${chipHtml(before1, 'md')}
+      ${chipHtml(before1, 'md', { played: opts.played })}
       <div class="hex-sep">▾</div>`;
     stackBot.innerHTML = `
       <div class="hex-sep">▾</div>
-      ${chipHtml(after1, 'md')}`;
+      ${chipHtml(after1, 'md', { queued: opts.queued, blurred: opts.blur })}`;
 
     bindChipClicks();
 
@@ -1123,10 +1158,18 @@ function hexSvg(stroke, active) {
     elementTag.style.animation = '';
   }
 
-  function chipHtml(agent, size) {
-    return `<button class="hex-chip size-${size}" data-uuid="${agent.uuid}" aria-label="${agent.name}">
-      ${hexSvg(agent.primary, false)}
+  function chipHtml(agent, size, state = {}) {
+    const cls = ['hex-chip', 'size-' + size];
+    if (state.played) cls.push('chip-played');
+    if (state.queued) cls.push('chip-queued');
+    if (state.blurred) cls.push('chip-blurred');
+    let badge = '';
+    if (state.played) badge = '<span class="chip-badge chip-badge-played">✓</span>';
+    else if (state.queued) badge = '<span class="chip-badge chip-badge-queued">⏳</span>';
+    return `<button class="${cls.join(' ')}" data-uuid="${agent.uuid}" aria-label="${agent.name}">
+      ${hexSvg(state.played ? '#4CAF50' : agent.primary, state.played)}
       <img src="${agent.icon}" alt="">
+      ${badge}
     </button>`;
   }
 
