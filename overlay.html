@@ -569,8 +569,8 @@ const AURAS = {
       <polygon points="50,-14 53,-4 50,0 47,-4" fill="${a}"/>
     </g>
     <g class="anim-float">
-      ${snow(-30,26,3.5,15)}${snow(-34,60,3,30)}${snow(-28,88,3.2,0)}
-      ${snow(130,26,3.5,-15)}${snow(134,60,3,-30)}${snow(128,88,3.2,0)}
+      ${snow(-18,26,3.5,15)}${snow(-22,60,3,30)}${snow(-16,88,3.2,0)}
+      ${snow(118,26,3.5,-15)}${snow(122,60,3,-30)}${snow(116,88,3.2,0)}
       ${snow(50,-28,3.2,0)}
     </g>
     <g class="anim-blink">
@@ -700,14 +700,14 @@ const AURAS = {
   // SEISMIC — Breach (shockwave rings + zigzag cracks)
   seismic: (p,s,a) => `
     <g class="anim-pulse" fill="none">
-      <circle cx="50" cy="50" r="80" stroke="${p}" stroke-width="1.5" opacity=".5"/>
-      <circle cx="50" cy="50" r="92" stroke="${s}" stroke-width="1" opacity=".35"/>
+      <circle cx="50" cy="50" r="65" stroke="${p}" stroke-width="1.5" opacity=".5"/>
+      <circle cx="50" cy="50" r="74" stroke="${s}" stroke-width="1" opacity=".35"/>
     </g>
     <g stroke="${p}" stroke-width="2" fill="none" opacity=".85">
-      <path d="M-22 50 L-14 46 L-18 54 L-10 50"/><path d="M122 50 L114 46 L118 54 L110 50"/>
-      <path d="M50 -22 L46 -14 L54 -18 L50 -10"/><path d="M50 122 L46 114 L54 118 L50 110"/>
+      <path d="M-12 50 L-4 46 L-8 54 L0 50"/><path d="M112 50 L104 46 L108 54 L100 50"/>
+      <path d="M50 -12 L46 -4 L54 -8 L50 0"/><path d="M50 112 L46 104 L54 108 L50 100"/>
     </g>
-    <g fill="${a}"><circle cx="-14" cy="46" r="1.5"/><circle cx="114" cy="46" r="1.5"/><circle cx="46" cy="-14" r="1.5"/><circle cx="46" cy="114" r="1.5"/></g>`,
+    <g fill="${a}"><circle cx="-4" cy="46" r="1.5"/><circle cx="104" cy="46" r="1.5"/><circle cx="46" cy="-4" r="1.5"/><circle cx="46" cy="104" r="1.5"/></g>`,
 
   // NATURE — Skye (leaves + central vein highlights + berries)
   nature: (p,s,a) => {
@@ -783,15 +783,15 @@ const AURAS = {
       <ellipse rx="${rx*0.45}" ry="${ry*0.55}" fill="${a}" opacity="${dim}"/>
       <circle r="${ry*0.25}" fill="#0a0418"/></g>`;
     return `<g class="anim-drift" stroke="${p}" stroke-width="2.2" fill="none" opacity=".9" stroke-linecap="round">
-      <path d="M-18 14 Q-30 30 -22 50 Q-32 68 -18 86"/>
-      <path d="M-22 50 Q-34 50 -38 58"/>
-      <path d="M-22 50 Q-32 42 -36 36"/>
-      <path d="M118 14 Q130 30 122 50 Q132 68 118 86"/>
-      <path d="M122 50 Q134 50 138 58"/>
-      <path d="M122 50 Q132 42 136 36"/>
+      <path d="M-10 14 Q-20 30 -14 50 Q-22 68 -10 86"/>
+      <path d="M-14 50 Q-22 50 -26 58"/>
+      <path d="M-14 50 Q-22 42 -24 36"/>
+      <path d="M110 14 Q120 30 114 50 Q122 68 110 86"/>
+      <path d="M114 50 Q122 50 126 58"/>
+      <path d="M114 50 Q122 42 124 36"/>
       <path d="M28 -14 Q22 -2 30 8"/><path d="M50 -16 Q50 -4 50 6"/><path d="M72 -14 Q78 -2 70 8"/>
     </g>
-    <g class="anim-flicker-2">${eye(50,-24,7,3.2)}${eye(-22,32,6,2.8,0.85)}${eye(-26,70,5,2.4,0.7)}${eye(122,32,6,2.8,0.85)}${eye(126,70,5,2.4,0.7)}</g>
+    <g class="anim-flicker-2">${eye(50,-24,7,3.2)}${eye(-14,32,6,2.8,0.85)}${eye(-18,70,5,2.4,0.7)}${eye(114,32,6,2.8,0.85)}${eye(118,70,5,2.4,0.7)}</g>
     <g stroke="${p}" stroke-width="2" fill="none" opacity=".9">
       <path d="M22 110 Q22 124 24 134"/>
       <path d="M40 112 Q40 128 42 138"/>
@@ -803,18 +803,18 @@ const AURAS = {
       <circle cx="60" cy="138" r="1.4"/><circle cx="78" cy="134" r="1.6"/>
     </g>
     <g opacity=".35">
-      <circle cx="-6" cy="22" r="6" fill="${s}"/><circle cx="106" cy="22" r="6" fill="${s}"/>
-      <circle cx="-10" cy="92" r="5" fill="${s}"/><circle cx="110" cy="92" r="5" fill="${s}"/>
+      <circle cx="-2" cy="22" r="6" fill="${s}"/><circle cx="102" cy="22" r="6" fill="${s}"/>
+      <circle cx="-4" cy="92" r="5" fill="${s}"/><circle cx="104" cy="92" r="5" fill="${s}"/>
     </g>`;
   },
 
   // WATER — Harbor (water walls + crests + bottom swell + droplets)
   water: (p,s,a) => `
     <g class="anim-swirl">
-      <path d="M-34 0 Q-26 8 -32 18 Q-24 26 -30 36 Q-22 44 -28 54 Q-20 62 -26 72 Q-18 80 -24 90 Q-16 96 -20 100 L-40 100 L-40 -2 Z" fill="${p}" opacity=".35"/>
-      <path d="M-30 8 Q-22 16 -28 26 Q-20 34 -26 44 Q-18 52 -24 62 Q-16 70 -22 80 Q-14 88 -18 96" stroke="${s}" stroke-width="1.4" fill="none" opacity=".85"/>
-      <path d="M134 0 Q126 8 132 18 Q124 26 130 36 Q122 44 128 54 Q120 62 126 72 Q118 80 124 90 Q116 96 120 100 L140 100 L140 -2 Z" fill="${p}" opacity=".35"/>
-      <path d="M130 8 Q122 16 128 26 Q120 34 126 44 Q118 52 124 62 Q116 70 122 80 Q114 88 118 96" stroke="${s}" stroke-width="1.4" fill="none" opacity=".85"/>
+      <path d="M-22 0 Q-14 8 -20 18 Q-12 26 -18 36 Q-10 44 -16 54 Q-8 62 -14 72 Q-6 80 -12 90 Q-4 96 -8 100 L-28 100 L-28 -2 Z" fill="${p}" opacity=".35"/>
+      <path d="M-18 8 Q-10 16 -16 26 Q-8 34 -14 44 Q-6 52 -12 62 Q-4 70 -10 80 Q-2 88 -6 96" stroke="${s}" stroke-width="1.4" fill="none" opacity=".85"/>
+      <path d="M122 0 Q114 8 120 18 Q112 26 118 36 Q110 44 116 54 Q108 62 114 72 Q106 80 112 90 Q104 96 108 100 L128 100 L128 -2 Z" fill="${p}" opacity=".35"/>
+      <path d="M118 8 Q110 16 116 26 Q108 34 114 44 Q106 52 112 62 Q104 70 110 80 Q102 88 106 96" stroke="${s}" stroke-width="1.4" fill="none" opacity=".85"/>
     </g>
     <g class="anim-pulse">
       <path d="M-10 -8 Q10 -22 28 -10 Q42 -22 56 -8 Q70 -22 84 -10 Q102 -22 110 -8" stroke="${p}" stroke-width="2" fill="none" opacity=".85"/>
@@ -830,10 +830,10 @@ const AURAS = {
       <circle cx="78" cy="116" r="2" fill="${a}" opacity=".8"/>
     </g>
     <g fill="${a}">
-      <path d="M-30 30 Q-33 22 -30 18 Q-27 22 -30 30 Z"/>
-      <path d="M-34 60 Q-37 52 -34 48 Q-31 52 -34 60 Z" opacity=".85"/>
-      <path d="M130 30 Q133 22 130 18 Q127 22 130 30 Z"/>
-      <path d="M134 60 Q137 52 134 48 Q131 52 134 60 Z" opacity=".85"/>
+      <path d="M-18 30 Q-21 22 -18 18 Q-15 22 -18 30 Z"/>
+      <path d="M-22 60 Q-25 52 -22 48 Q-19 52 -22 60 Z" opacity=".85"/>
+      <path d="M118 30 Q121 22 118 18 Q115 22 118 30 Z"/>
+      <path d="M122 60 Q125 52 122 48 Q119 52 122 60 Z" opacity=".85"/>
       <path d="M50 -36 Q47 -28 50 -24 Q53 -28 50 -36 Z"/>
     </g>`,
 
@@ -936,10 +936,10 @@ const AURAS = {
       </linearGradient>
     </defs>
     <g class="anim-drift">
-      <path d="M-30 10 Q-22 22 -28 36 Q-20 50 -30 64 Q-22 78 -28 92 Q-22 100 -18 100 L-8 100 L-8 12 Z" fill="url(#metal-grad)" opacity=".55"/>
-      <path d="M130 10 Q122 22 128 36 Q120 50 130 64 Q122 78 128 92 Q122 100 118 100 L108 100 L108 12 Z" fill="url(#metal-grad)" opacity=".55"/>
-      <path d="M-22 14 Q-16 30 -22 46 Q-14 60 -22 76" stroke="${a}" stroke-width="0.8" fill="none" opacity=".85"/>
-      <path d="M122 14 Q116 30 122 46 Q114 60 122 76" stroke="${a}" stroke-width="0.8" fill="none" opacity=".85"/>
+      <path d="M-18 10 Q-10 22 -16 36 Q-8 50 -18 64 Q-10 78 -16 92 Q-10 100 -6 100 L0 100 L0 12 Z" fill="url(#metal-grad)" opacity=".55"/>
+      <path d="M118 10 Q110 22 116 36 Q108 50 118 64 Q110 78 116 92 Q110 100 106 100 L100 100 L100 12 Z" fill="url(#metal-grad)" opacity=".55"/>
+      <path d="M-12 14 Q-6 30 -12 46 Q-4 60 -12 76" stroke="${a}" stroke-width="0.8" fill="none" opacity=".85"/>
+      <path d="M112 14 Q106 30 112 46 Q104 60 112 76" stroke="${a}" stroke-width="0.8" fill="none" opacity=".85"/>
     </g>
     <g fill="${s}">
       <polygon points="50,-26 46,-12 54,-12"/>
@@ -950,14 +950,14 @@ const AURAS = {
       <polygon points="68,122 64,110 72,110" opacity=".85"/>
     </g>
     <g class="anim-pulse">
-      <ellipse cx="-34" cy="34" rx="3" ry="5" fill="${a}"/>
-      <ellipse cx="134" cy="34" rx="3" ry="5" fill="${a}"/>
-      <ellipse cx="-36" cy="68" rx="2.5" ry="4" fill="${p}"/>
-      <ellipse cx="136" cy="68" rx="2.5" ry="4" fill="${p}"/>
+      <ellipse cx="-22" cy="34" rx="3" ry="5" fill="${a}"/>
+      <ellipse cx="122" cy="34" rx="3" ry="5" fill="${a}"/>
+      <ellipse cx="-24" cy="68" rx="2.5" ry="4" fill="${p}"/>
+      <ellipse cx="124" cy="68" rx="2.5" ry="4" fill="${p}"/>
     </g>
     <g fill="${p}" opacity=".9">
-      <polygon points="-40,50 -32,46 -32,54"/>
-      <polygon points="140,50 132,46 132,54"/>
+      <polygon points="-28,50 -20,46 -20,54"/>
+      <polygon points="128,50 120,46 120,54"/>
     </g>`,
 
   // MISSILE — Tejo (reticle + missile trails + LOCK label)
@@ -992,27 +992,27 @@ const AURAS = {
   // SOUND — Miks (concentric waves + EQ bars + musical notes + bass bloom)
   sound: (p,s,a) => `
     <g class="anim-pulse" fill="none">
-      <circle cx="50" cy="50" r="68" stroke="${p}" stroke-width="1.5" opacity=".55"/>
-      <circle cx="50" cy="50" r="80" stroke="${s}" stroke-width="1.2" opacity=".4"/>
-      <circle cx="50" cy="50" r="92" stroke="${p}" stroke-width="1" opacity=".25"/>
+      <circle cx="50" cy="50" r="58" stroke="${p}" stroke-width="1.5" opacity=".55"/>
+      <circle cx="50" cy="50" r="68" stroke="${s}" stroke-width="1.2" opacity=".4"/>
+      <circle cx="50" cy="50" r="78" stroke="${p}" stroke-width="1" opacity=".25"/>
     </g>
     <g class="anim-blink" fill="${p}">
-      <rect x="-24" y="42" width="3" height="16" rx="1"/>
-      <rect x="-18" y="36" width="3" height="28" rx="1"/>
-      <rect x="-12" y="46" width="3" height="8" rx="1" opacity=".85"/>
-      <rect x="113" y="46" width="3" height="8" rx="1" opacity=".85"/>
-      <rect x="119" y="36" width="3" height="28" rx="1"/>
-      <rect x="125" y="42" width="3" height="16" rx="1"/>
+      <rect x="-16" y="42" width="3" height="16" rx="1"/>
+      <rect x="-10" y="36" width="3" height="28" rx="1"/>
+      <rect x="-4" y="46" width="3" height="8" rx="1" opacity=".85"/>
+      <rect x="105" y="46" width="3" height="8" rx="1" opacity=".85"/>
+      <rect x="111" y="36" width="3" height="28" rx="1"/>
+      <rect x="117" y="42" width="3" height="16" rx="1"/>
     </g>
     <g fill="${a}">
-      <circle cx="40" cy="-22" r="2.5"/>
-      <line x1="42.5" y1="-22" x2="42.5" y2="-32" stroke="${a}" stroke-width="1.2"/>
-      <circle cx="62" cy="-18" r="2"/>
-      <line x1="64" y1="-18" x2="64" y2="-28" stroke="${a}" stroke-width="1"/>
+      <circle cx="40" cy="-18" r="2.5"/>
+      <line x1="42.5" y1="-18" x2="42.5" y2="-26" stroke="${a}" stroke-width="1.2"/>
+      <circle cx="62" cy="-14" r="2"/>
+      <line x1="64" y1="-14" x2="64" y2="-22" stroke="${a}" stroke-width="1"/>
     </g>
     <g opacity=".6">
-      <circle cx="50" cy="120" r="8" fill="${s}" opacity=".4"/>
-      <circle cx="50" cy="120" r="4" fill="${a}" opacity=".8"/>
+      <circle cx="50" cy="114" r="7" fill="${s}" opacity=".4"/>
+      <circle cx="50" cy="114" r="3.5" fill="${a}" opacity=".8"/>
     </g>`,
 
   // STEALTH — Veto (glitch bars + accent dots)
