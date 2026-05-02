@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VALORANT Overlay — Control Panel</title>
+<title>VALORANT Overlay — Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -21,101 +21,193 @@
   }
 
   html, body {
-    width: 540px;
-    height: 620px;
+    width: 520px;
+    height: 380px;
     overflow: hidden;
     background: var(--val-bg);
     font-family: 'Rajdhani', sans-serif;
     color: var(--val-cream);
+    user-select: none;
   }
 
   .dock {
-    width: 540px;
-    height: 620px;
+    width: 520px;
+    height: 380px;
     display: grid;
-    grid-template-rows: 52px 1fr auto;
-    grid-template-areas:
-      "header"
-      "main"
-      "options";
+    grid-template-rows: 40px 36px 1fr auto;
+    grid-template-areas: "head" "tool" "main" "opts";
     position: relative;
   }
 
-  /* ── Header ── */
-  .header {
-    grid-area: header;
+  /* ─────────── Header ─────────── */
+  .head {
+    grid-area: head;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 18px;
+    padding: 0 14px;
     background: var(--val-bg-2);
     border-bottom: 1px solid var(--val-line);
   }
-  .header-title { font-size: 13px; }
-  .header-left { display: flex; align-items: center; gap: 14px; }
-  .header-logo {
-    width: 26px; height: 26px;
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-logo {
+    width: 22px; height: 22px;
     border: 2px solid var(--val-red);
     transform: rotate(45deg);
     display: flex; align-items: center; justify-content: center;
   }
-  .header-logo span {
+  .brand-logo span {
     transform: rotate(-45deg);
-    font-weight: 700; font-size: 9px;
+    font-weight: 700; font-size: 8px;
     letter-spacing: 0.05em; color: var(--val-red);
   }
-  .header-title {
-    font-weight: 700; font-size: 15px;
+  .brand-title {
+    font-weight: 700; font-size: 12px;
     letter-spacing: 0.18em; text-transform: uppercase;
   }
-  .header-title b { color: var(--val-red); font-weight: 700; }
+  .brand-title b { color: var(--val-red); }
 
-  .live-indicator {
+  .live {
     display: flex; align-items: center; gap: 6px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; letter-spacing: 0.18em;
-    color: rgba(236,232,225,0.4);
+    font-size: 9px; letter-spacing: 0.18em;
+    color: rgba(236,232,225,0.5);
     visibility: hidden;
   }
-  .live-indicator.on { visibility: visible; }
+  .live.on { visibility: visible; }
   .live-dot {
-    width: 7px; height: 7px; border-radius: 50%;
+    width: 6px; height: 6px; border-radius: 50%;
     background: var(--green);
     animation: pulse-dot 1.6s ease-in-out infinite;
   }
   @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-  /* ── Main (preview + nav) ── */
+  /* ─────────── Toolbar (sort + search) ─────────── */
+  .tool {
+    grid-area: tool;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    background: #111A24;
+    border-bottom: 1px solid var(--val-line);
+  }
+  .seg {
+    display: flex;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--val-line);
+    border-radius: 3px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .seg-btn {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: rgba(236,232,225,0.55);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border-right: 1px solid var(--val-line);
+  }
+  .seg-btn:last-child { border-right: 0; }
+  .seg-btn:hover { color: var(--val-cream); background: rgba(255,255,255,0.04); }
+  .seg-btn.active {
+    background: var(--val-red);
+    color: #fff;
+  }
+
+  .search-wrap { position: relative; flex: 1; }
+  .search-input {
+    width: 100%;
+    appearance: none;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--val-line);
+    color: var(--val-cream);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    padding: 5px 11px 5px 30px;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input::placeholder { color: rgba(236,232,225,0.3); }
+  .search-input:focus { border-color: rgba(255,70,85,0.5); }
+  .search-icon {
+    position: absolute;
+    left: 9px; top: 50%; transform: translateY(-50%);
+    width: 13px; height: 13px;
+    color: rgba(236,232,225,0.3);
+    pointer-events: none;
+  }
+  .search-results {
+    position: absolute;
+    top: calc(100% + 4px); left: 0; right: 0;
+    background: #0E1620;
+    border: 1px solid var(--val-line);
+    border-radius: 3px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 30;
+    display: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .search-results.open { display: block; }
+  .search-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(236,232,225,0.04);
+  }
+  .search-item:last-child { border-bottom: 0; }
+  .search-item:hover, .search-item.focused { background: rgba(255,70,85,0.12); }
+  .search-item img { width: 22px; height: 22px; object-fit: contain; }
+  .search-item .si-name {
+    font-weight: 600; font-size: 11px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .search-item .si-role {
+    margin-left: auto;
+    font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.5);
+  }
+
+  /* ─────────── Main preview (with side nav chevrons) ─────────── */
   .main {
     grid-area: main;
-    padding: 18px 22px;
+    position: relative;
+    padding: 16px 14px;
     display: flex;
-    flex-direction: column;
-    gap: 14px;
+    align-items: center;
     overflow: hidden;
   }
 
   .preview {
+    flex: 1;
     display: grid;
-    grid-template-columns: 110px 1fr;
-    gap: 18px;
-    align-items: center;
-    flex-shrink: 0;
+    grid-template-columns: 100px 1fr;
+    gap: 16px;
+    align-items: stretch;
+    padding: 0 38px; /* leaves room for the floating side chevrons */
   }
   .preview-img-wrap {
     position: relative;
-    width: 110px; height: 150px;
+    width: 100px; height: 140px;
     border: 2px solid var(--val-red);
-    border-radius: 4px;
+    border-radius: 3px;
     overflow: hidden;
     background: linear-gradient(180deg, #1a2332, #0a0e14);
-    box-shadow: 0 4px 18px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.55);
   }
   .preview-img-wrap.empty::before {
     content: '?';
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 64px; font-weight: 700;
+    font-size: 48px; font-weight: 700;
     color: rgba(255,70,85,0.2);
   }
   .preview-img {
@@ -134,25 +226,30 @@
 
   .preview-meta {
     display: flex; flex-direction: column;
-    gap: 6px;
+    justify-content: center;
+    gap: 4px;
     min-width: 0;
   }
   .preview-counter {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; letter-spacing: 0.18em;
+    font-size: 10px; letter-spacing: 0.18em;
     color: rgba(236,232,225,0.4);
-    margin-bottom: 4px;
   }
   .preview-counter b { color: var(--val-red); }
   .preview-name {
-    font-weight: 700; font-size: 26px;
+    font-weight: 700; font-size: 32px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    line-height: 1;
+    line-height: 0.95;
     color: var(--val-cream);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+  .preview-role-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 4px;
   }
   .preview-role {
     font-weight: 600; font-size: 11px;
@@ -161,224 +258,111 @@
     color: var(--val-red);
   }
   .preview-element {
-    margin-top: 4px;
-    align-self: flex-start;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; letter-spacing: 0.22em;
+    font-size: 9px; letter-spacing: 0.2em;
     text-transform: uppercase;
-    padding: 4px 10px;
+    padding: 2px 7px;
     border: 1px solid rgba(236,232,225,0.18);
     border-radius: 2px;
-    color: rgba(236,232,225,0.55);
+    color: rgba(236,232,225,0.6);
   }
   .preview-element.hidden { display: none; }
 
-  /* ── Nav row ── */
-  .nav-row {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 10px;
-    align-items: stretch;
-  }
-  .nav-arrow {
-    appearance: none;
-    background: rgba(255,70,85,0.08);
-    border: 1px solid rgba(255,70,85,0.4);
-    color: var(--val-red);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px; font-weight: 700;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    padding: 0 18px;
-    border-radius: 3px;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 8px;
-    transition: all 0.15s ease;
-  }
-  .nav-arrow:hover:not(:disabled) { background: var(--val-red); color: #fff; }
-  .nav-arrow:disabled { opacity: 0.25; cursor: not-allowed; }
-  .nav-arrow svg { width: 14px; height: 14px; }
-
-  .search-wrap {
-    position: relative;
-  }
-  .search-box {
-    width: 100%;
-    appearance: none;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--val-line);
-    color: var(--val-cream);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 14px;
-    padding: 10px 14px;
-    border-radius: 3px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .search-box::placeholder { color: rgba(236,232,225,0.3); }
-  .search-box:focus { border-color: rgba(255,70,85,0.5); }
-  .search-results {
+  /* Side nav chevrons (floating on the preview row) */
+  .nav-side {
     position: absolute;
-    top: calc(100% + 4px); left: 0; right: 0;
-    background: #0E1620;
-    border: 1px solid var(--val-line);
-    border-radius: 3px;
-    max-height: 240px;
-    overflow-y: auto;
-    z-index: 30;
-    display: none;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  }
-  .search-results.open { display: block; }
-  .search-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-bottom: 1px solid rgba(236,232,225,0.04);
-  }
-  .search-item:last-child { border-bottom: 0; }
-  .search-item:hover, .search-item.focused {
-    background: rgba(255,70,85,0.12);
-  }
-  .search-item img { width: 28px; height: 28px; object-fit: contain; }
-  .search-item .si-name {
-    font-weight: 600; font-size: 13px;
-    letter-spacing: 0.06em; text-transform: uppercase;
-  }
-  .search-item .si-role {
-    margin-left: auto;
-    font-size: 11px; letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(236,232,225,0.5);
-  }
-
-  /* ── Sort selector ── */
-  .sort-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--val-line);
-    border-radius: 3px;
-  }
-  .sort-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(236,232,225,0.4);
-  }
-  .sort-btn {
+    top: 50%;
+    transform: translateY(-50%);
     appearance: none;
-    background: transparent;
-    border: 1px solid rgba(236,232,225,0.15);
-    color: rgba(236,232,225,0.55);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 12px; font-weight: 600;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 4px 12px;
+    width: 32px; height: 56px;
+    background: rgba(255,70,85,0.08);
+    border: 1px solid rgba(255,70,85,0.35);
+    color: var(--val-red);
     border-radius: 3px;
     cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
     transition: all 0.15s ease;
   }
-  .sort-btn:hover {
-    border-color: rgba(255,70,85,0.4);
-    color: var(--val-cream);
-  }
-  .sort-btn.active {
-    background: var(--val-red);
-    border-color: var(--val-red);
-    color: #fff;
-  }
-  .sort-row .hint {
-    margin-left: auto;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px; letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(236,232,225,0.3);
-  }
+  .nav-side:hover:not(:disabled) { background: var(--val-red); color: #fff; }
+  .nav-side:disabled { opacity: 0.25; cursor: not-allowed; }
+  .nav-side svg { width: 14px; height: 14px; }
+  .nav-side.prev { left: 14px; }
+  .nav-side.next { right: 14px; }
 
-  /* ── Options panel (compact row at the bottom) ── */
-  .options {
-    grid-area: options;
+  /* ─────────── Options (compact chips) ─────────── */
+  .opts {
+    grid-area: opts;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px 12px;
     background: var(--val-bg-2);
     border-top: 1px solid var(--val-line);
-    padding: 14px 22px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
   }
-  .options-title {
-    font-weight: 700; font-size: 11px;
-    letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--val-red);
+  .opts-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.4);
+    margin-right: 6px;
   }
-  .options-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-
-  .opt {
-    display: flex; flex-direction: column; gap: 4px;
-    padding: 10px 12px;
-    background: rgba(255,255,255,0.02);
+  .chip {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 11px;
+    background: rgba(255,255,255,0.03);
     border: 1px solid var(--val-line);
-    border-radius: 4px;
+    border-radius: 3px;
     cursor: pointer;
     user-select: none;
     transition: all 0.15s ease;
+    flex: 1;
+    justify-content: center;
   }
-  .opt:hover { border-color: rgba(236,232,225,0.2); }
-  .opt-head {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .opt-box {
-    width: 16px; height: 16px;
+  .chip:hover { border-color: rgba(236,232,225,0.25); }
+  .chip-box {
+    width: 13px; height: 13px;
     border: 1.5px solid rgba(236,232,225,0.4);
-    border-radius: 3px;
+    border-radius: 2px;
     flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
   }
-  .opt-box::after {
+  .chip-box::after {
     content: '✓';
     color: #fff;
-    font-size: 11px; font-weight: 700;
+    font-size: 10px; font-weight: 700;
     line-height: 1;
     opacity: 0;
     transition: opacity 0.12s;
   }
-  .opt-name {
+  .chip-name {
     font-weight: 700; font-size: 11px;
     letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--val-cream);
+    color: rgba(236,232,225,0.65);
+    white-space: nowrap;
   }
-  .opt-desc {
-    font-size: 11px;
-    color: rgba(236,232,225,0.5);
-    line-height: 1.3;
-  }
+  .chip[data-key="blur"].on { background: rgba(255,70,85,0.12); border-color: rgba(255,70,85,0.5); }
+  .chip[data-key="blur"].on .chip-box { background: var(--val-red); border-color: var(--val-red); }
+  .chip[data-key="blur"].on .chip-name { color: var(--val-cream); }
+  .chip[data-key="played"].on { background: rgba(76,175,80,0.12); border-color: rgba(76,175,80,0.5); }
+  .chip[data-key="played"].on .chip-box { background: var(--green); border-color: var(--green); }
+  .chip[data-key="played"].on .chip-name { color: var(--val-cream); }
+  .chip[data-key="queued"].on { background: rgba(232,168,56,0.12); border-color: rgba(232,168,56,0.5); }
+  .chip[data-key="queued"].on .chip-box { background: var(--amber); border-color: var(--amber); }
+  .chip[data-key="queued"].on .chip-name { color: var(--val-cream); }
+  .chip.on .chip-box::after { opacity: 1; }
 
-  .opt[data-key="blur"].on { background: rgba(255,70,85,0.1); border-color: rgba(255,70,85,0.5); }
-  .opt[data-key="blur"].on .opt-box { background: var(--val-red); border-color: var(--val-red); }
-  .opt[data-key="played"].on { background: rgba(76,175,80,0.1); border-color: rgba(76,175,80,0.5); }
-  .opt[data-key="played"].on .opt-box { background: var(--green); border-color: var(--green); }
-  .opt[data-key="queued"].on { background: rgba(232,168,56,0.1); border-color: rgba(232,168,56,0.5); }
-  .opt[data-key="queued"].on .opt-box { background: var(--amber); border-color: var(--amber); }
-  .opt.on .opt-box::after { opacity: 1; }
-
-  /* ── Loading / Error ── */
+  /* ─────────── Loading / Error ─────────── */
   .loading-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px;
     background: var(--val-bg);
     z-index: 50;
   }
   .loading-overlay.hidden { display: none; }
   .spinner {
-    width: 36px; height: 36px;
+    width: 30px; height: 30px;
     border: 3px solid rgba(255,70,85,0.2);
     border-top-color: var(--val-red);
     border-radius: 50%;
@@ -386,18 +370,17 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-overlay .text {
-    font-size: 12px; letter-spacing: 0.15em;
+    font-size: 11px; letter-spacing: 0.15em;
     text-transform: uppercase;
     color: rgba(236,232,225,0.4);
   }
   .error-banner {
-    position: absolute;
-    top: 56px; left: 0; right: 0;
-    padding: 10px 24px;
+    position: absolute; top: 40px; left: 0; right: 0;
+    padding: 8px 14px;
     background: rgba(255,70,85,0.1);
     border-bottom: 1px solid rgba(255,70,85,0.2);
     text-align: center;
-    font-size: 13px; color: var(--val-red);
+    font-size: 11px; color: var(--val-red);
     display: none; z-index: 40;
   }
   .error-banner.visible { display: block; }
@@ -413,15 +396,31 @@
 
   <div class="error-banner" id="error"></div>
 
-  <div class="header">
-    <div class="header-left">
-      <div class="header-logo"><span>VAL</span></div>
-      <div class="header-title"><b>VALORANT</b> CONTROL</div>
+  <header class="head">
+    <div class="brand">
+      <div class="brand-logo"><span>VAL</span></div>
+      <div class="brand-title"><b>VAL</b> CONTROL</div>
     </div>
-    <div class="live-indicator" id="live"><div class="live-dot"></div>LIVE</div>
+    <div class="live" id="live"><div class="live-dot"></div>LIVE</div>
+  </header>
+
+  <div class="tool">
+    <div class="seg" role="tablist">
+      <button class="seg-btn active" data-sort="alpha" title="Alphabetical">A→Z</button>
+      <button class="seg-btn" data-sort="release" title="Release order">REL</button>
+      <button class="seg-btn" data-sort="role" title="By role">ROLE</button>
+    </div>
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input class="search-input" type="text" placeholder="Type to jump (Enter)..." id="search" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
   </div>
 
   <div class="main">
+    <button class="nav-side prev" id="prev-btn" title="Previous (←)" aria-label="Previous">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
     <div class="preview">
       <div class="preview-img-wrap empty" id="preview-wrap">
         <img class="preview-img hidden" id="preview-img" alt="">
@@ -431,63 +430,32 @@
         <div class="preview-counter">
           <b id="counter-num">--</b> / <span id="counter-tot">--</span>
         </div>
-        <div class="preview-name" id="preview-name">No agent selected</div>
-        <div class="preview-role" id="preview-role" style="color:rgba(236,232,225,0.4)">—</div>
-        <div class="preview-element hidden" id="preview-element">◈ —</div>
+        <div class="preview-name" id="preview-name">No agent</div>
+        <div class="preview-role-row">
+          <span class="preview-role" id="preview-role">—</span>
+          <span class="preview-element hidden" id="preview-element">◈ —</span>
+        </div>
       </div>
     </div>
-
-    <div class="nav-row">
-      <button class="nav-arrow" id="prev-btn" title="Previous agent (←)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        Prev
-      </button>
-      <div class="search-wrap">
-        <input class="search-box" type="text" placeholder="Type a name to jump..." id="search" autocomplete="off">
-        <div class="search-results" id="search-results"></div>
-      </div>
-      <button class="nav-arrow" id="next-btn" title="Next agent (→)">
-        Next
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
-    </div>
-
-    <div class="sort-row">
-      <span class="sort-label">Sort:</span>
-      <button class="sort-btn active" data-sort="alpha">A → Z</button>
-      <button class="sort-btn" data-sort="release">Release</button>
-      <button class="sort-btn" data-sort="role">By Role</button>
-      <span class="hint">← / → to navigate</span>
-    </div>
+    <button class="nav-side next" id="next-btn" title="Next (→)" aria-label="Next">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
   </div>
 
-  <div class="options">
-    <div class="options-title">Display Options</div>
-    <div class="options-row">
-      <label class="opt" data-key="blur" title="Blur the next agent's hex chip on the overlay so viewers can't see what's coming.">
-        <div class="opt-head">
-          <div class="opt-box"></div>
-          <div class="opt-name">Blur Next</div>
-        </div>
-        <div class="opt-desc">Hide the upcoming agent.</div>
-      </label>
-
-      <label class="opt" data-key="played" title="Show a green ✓ on the previous hex chip — marks the just-played agent as done.">
-        <div class="opt-head">
-          <div class="opt-box"></div>
-          <div class="opt-name">Mark Previous</div>
-        </div>
-        <div class="opt-desc">Green ✓ on the played agent.</div>
-      </label>
-
-      <label class="opt" data-key="queued" title="Show an amber ⏳ on the next hex chip — flags the upcoming agent.">
-        <div class="opt-head">
-          <div class="opt-box"></div>
-          <div class="opt-name">Queue Next</div>
-        </div>
-        <div class="opt-desc">Amber ⏳ on the next agent.</div>
-      </label>
-    </div>
+  <div class="opts">
+    <span class="opts-label">Display</span>
+    <label class="chip" data-key="blur" title="Blur the next agent's hex chip on the overlay so viewers can't see what's coming.">
+      <span class="chip-box"></span>
+      <span class="chip-name">Blur Next</span>
+    </label>
+    <label class="chip" data-key="played" title="Show a green ✓ on the previous hex chip — marks the just-played agent as done.">
+      <span class="chip-box"></span>
+      <span class="chip-name">Mark Played</span>
+    </label>
+    <label class="chip" data-key="queued" title="Show an amber ⏳ on the next hex chip — flags the upcoming agent.">
+      <span class="chip-box"></span>
+      <span class="chip-name">Queue Next</span>
+    </label>
   </div>
 </div>
 
@@ -501,58 +469,54 @@
   // Custom (non-API) agents — empty for now (Miks removed pending art).
   const CUSTOM_AGENTS = [];
 
-  const $ = (id) => document.getElementById(id);
-  const loadingEl = $('loading'), errorEl = $('error');
-  const liveEl = $('live');
-  const previewWrap = $('preview-wrap'), previewImg = $('preview-img');
-  const previewName = $('preview-name'), previewRole = $('preview-role'), previewElement = $('preview-element');
-  const counterNum = $('counter-num'), counterTot = $('counter-tot');
-  const searchInput = $('search'), searchResults = $('search-results');
-  const prevBtn = $('prev-btn'), nextBtn = $('next-btn');
-
-  // ── Persistent state (localStorage) ──
+  // ── Persistent state ──
   const STORAGE_KEY = 'valorant-overlay:state';
   const DEFAULT_STATE = {
     sort: 'alpha',
-    selectedByCategory: {},  // { alpha: uuid, release: uuid, role: uuid }
+    selectedByCategory: {},
     opts: { blur: false, played: false, queued: false },
   };
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return { ...DEFAULT_STATE };
-      const parsed = JSON.parse(raw);
+      const p = JSON.parse(raw);
       return {
         ...DEFAULT_STATE,
-        ...parsed,
-        selectedByCategory: { ...DEFAULT_STATE.selectedByCategory, ...(parsed.selectedByCategory || {}) },
-        opts: { ...DEFAULT_STATE.opts, ...(parsed.opts || {}) },
+        ...p,
+        selectedByCategory: { ...DEFAULT_STATE.selectedByCategory, ...(p.selectedByCategory || {}) },
+        opts: { ...DEFAULT_STATE.opts, ...(p.opts || {}) },
       };
     } catch { return { ...DEFAULT_STATE }; }
   }
   function saveState() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        sort: currentSort,
-        selectedByCategory,
-        opts,
+        sort: currentSort, selectedByCategory, opts,
       }));
     } catch {}
   }
 
   const state = loadState();
-  let agentsRelease = [];
-  let selectedUuid = null;
   let currentSort = state.sort;
   const selectedByCategory = state.selectedByCategory;
   const opts = state.opts;
 
-  const channel = new BroadcastChannel(CHANNEL_NAME);
+  const $ = (id) => document.getElementById(id);
+  const loadingEl = $('loading'), errorEl = $('error'), liveEl = $('live');
+  const previewWrap = $('preview-wrap'), previewImg = $('preview-img');
+  const previewName = $('preview-name'), previewRole = $('preview-role');
+  const previewElement = $('preview-element');
+  const counterNum = $('counter-num'), counterTot = $('counter-tot');
+  const searchInput = $('search'), searchResults = $('search-results');
+  const prevBtn = $('prev-btn'), nextBtn = $('next-btn');
 
-  // Listen so external selections (e.g. clicking a hex chip in the overlay) keep the dock in sync
+  let agentsRelease = [];
+  let selectedUuid = null;
+
+  const channel = new BroadcastChannel(CHANNEL_NAME);
   channel.onmessage = (e) => {
     if (e.data?.type === 'SELECT_AGENT' && e.data.agentUuid) {
-      // External selection — update local state without re-broadcasting
       applySelection(e.data.agentUuid, /*broadcast*/ false);
     }
   };
@@ -573,18 +537,16 @@
     loadingEl.classList.add('hidden');
     counterTot.textContent = String(agentsRelease.length).padStart(2, '0');
 
-    // Restore persisted UI state ─────────────────────────────────────
-    document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === currentSort));
-    document.querySelectorAll('.opt').forEach(el => el.classList.toggle('on', !!opts[el.dataset.key]));
+    // Restore UI state from persistence
+    document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === currentSort));
+    document.querySelectorAll('.chip').forEach(el => el.classList.toggle('on', !!opts[el.dataset.key]));
 
-    // Push initial sort + options to overlay so it boots in sync
+    // Sync overlay
     channel.postMessage({ type: 'SET_SORT', sort: currentSort });
     broadcastOptions();
 
-    // Restore the saved selected agent for this sort category, or fall
-    // back to the first agent of that category on first launch.
-    const savedUuid = selectedByCategory[currentSort];
     const sorted = getSortedAgents();
+    const savedUuid = selectedByCategory[currentSort];
     if (savedUuid && agentsRelease.some(a => a.uuid === savedUuid)) {
       applySelection(savedUuid);
     } else if (sorted.length > 0) {
@@ -599,6 +561,7 @@
     return;
   }
 
+  // ── Sort logic ──
   function getSortedAgents() {
     const list = agentsRelease.slice();
     if (currentSort === 'alpha') list.sort((a,b) => a.name.localeCompare(b.name));
@@ -611,16 +574,10 @@
     return list;
   }
 
-  function getSortedIdx(uuid) {
-    return getSortedAgents().findIndex(a => a.uuid === uuid);
-  }
-
   function applySelection(uuid, broadcast = true) {
     const agent = agentsRelease.find(a => a.uuid === uuid);
     if (!agent) return;
     selectedUuid = uuid;
-
-    // Persist progress for the current sort category
     selectedByCategory[currentSort] = uuid;
     saveState();
 
@@ -653,32 +610,27 @@
     channel.postMessage({ type: 'SET_OPTIONS', opts: { ...opts } });
   }
 
-  // ── Sort ──
-  document.querySelectorAll('.sort-btn').forEach(btn => {
+  // ── Sort segment ──
+  document.querySelectorAll('.seg-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const newSort = btn.dataset.sort;
       if (newSort === currentSort) return;
       currentSort = newSort;
       saveState();
-      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      // Tell the overlay to re-sort its prev/next chips the same way
       channel.postMessage({ type: 'SET_SORT', sort: currentSort });
 
-      // Restore the saved agent for the new sort category (independent
-      // progression per category). If no saved agent, fall back to the
-      // first one in this category's order.
       const sorted = getSortedAgents();
       const savedUuid = selectedByCategory[currentSort];
-      let nextUuid = null;
       if (savedUuid && agentsRelease.some(a => a.uuid === savedUuid)) {
-        nextUuid = savedUuid;
+        applySelection(savedUuid);
       } else if (sorted.length > 0) {
-        nextUuid = sorted[0].uuid;
+        applySelection(sorted[0].uuid);
+      } else {
+        updateNav();
       }
-      if (nextUuid) applySelection(nextUuid);
-      else updateNav();
     });
   });
 
@@ -696,14 +648,13 @@
     else if (idx < 0 && sorted.length > 0) applySelection(sorted[0].uuid);
   });
 
-  // Keyboard ← / → (when not typing)
   document.addEventListener('keydown', (e) => {
     if (document.activeElement === searchInput) return;
     if (e.key === 'ArrowLeft') prevBtn.click();
     else if (e.key === 'ArrowRight') nextBtn.click();
   });
 
-  // ── Search with type-ahead ──
+  // ── Search type-ahead ──
   let focusedItemIdx = -1;
   function renderSearch() {
     const q = searchInput.value.trim().toLowerCase();
@@ -735,7 +686,6 @@
       });
     });
   }
-
   searchInput.addEventListener('input', renderSearch);
   searchInput.addEventListener('keydown', (e) => {
     const items = searchResults.querySelectorAll('.search-item');
@@ -749,9 +699,7 @@
         searchInput.blur();
       }
     } else if (e.key === 'Escape') {
-      searchInput.value = '';
-      searchResults.classList.remove('open');
-      searchInput.blur();
+      searchInput.value = ''; searchResults.classList.remove('open'); searchInput.blur();
     } else if (e.key === 'ArrowDown' && items.length > 0) {
       e.preventDefault();
       focusedItemIdx = Math.min(focusedItemIdx + 1, items.length - 1);
@@ -764,13 +712,12 @@
       items[focusedItemIdx].classList.add('focused');
     }
   });
-  // Close suggestions when clicking outside
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.search-wrap')) searchResults.classList.remove('open');
   });
 
-  // ── Display option toggles ──
-  document.querySelectorAll('.opt').forEach(el => {
+  // ── Option chips ──
+  document.querySelectorAll('.chip').forEach(el => {
     el.addEventListener('click', () => {
       const key = el.dataset.key;
       opts[key] = !opts[key];
