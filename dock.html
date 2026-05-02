@@ -21,8 +21,8 @@
   }
 
   html, body {
-    width: 520px;
-    height: 380px;
+    width: 280px;
+    height: 720px;
     overflow: hidden;
     background: var(--val-bg);
     font-family: 'Rajdhani', sans-serif;
@@ -31,25 +31,25 @@
   }
 
   .dock {
-    width: 520px;
-    height: 380px;
-    display: grid;
-    grid-template-rows: 40px 36px 1fr auto;
-    grid-template-areas: "head" "tool" "main" "opts";
+    width: 280px;
+    height: 720px;
+    display: flex;
+    flex-direction: column;
     position: relative;
   }
 
-  /* ─────────── Header ─────────── */
+  /* ─────────── Header (sticky-ish) ─────────── */
   .head {
-    grid-area: head;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 14px;
+    height: 44px;
     background: var(--val-bg-2);
     border-bottom: 1px solid var(--val-line);
   }
-  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand { display: flex; align-items: center; gap: 9px; }
   .brand-logo {
     width: 22px; height: 22px;
     border: 2px solid var(--val-red);
@@ -62,7 +62,7 @@
     letter-spacing: 0.05em; color: var(--val-red);
   }
   .brand-title {
-    font-weight: 700; font-size: 12px;
+    font-weight: 700; font-size: 11px;
     letter-spacing: 0.18em; text-transform: uppercase;
   }
   .brand-title b { color: var(--val-red); }
@@ -82,13 +82,24 @@
   }
   @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-  /* ─────────── Toolbar (sort + search) ─────────── */
+  /* ─────────── Scroll area ─────────── */
+  .scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,70,85,0.3) transparent;
+  }
+  .scroll::-webkit-scrollbar { width: 6px; }
+  .scroll::-webkit-scrollbar-track { background: transparent; }
+  .scroll::-webkit-scrollbar-thumb { background: rgba(255,70,85,0.3); border-radius: 3px; }
+
+  /* ─────────── Toolbar (sort + search stacked) ─────────── */
   .tool {
-    grid-area: tool;
     display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 14px;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
     background: #111A24;
     border-bottom: 1px solid var(--val-line);
   }
@@ -98,9 +109,9 @@
     border: 1px solid var(--val-line);
     border-radius: 3px;
     overflow: hidden;
-    flex-shrink: 0;
   }
   .seg-btn {
+    flex: 1;
     appearance: none;
     background: transparent;
     border: 0;
@@ -108,19 +119,16 @@
     font-family: 'Rajdhani', sans-serif;
     font-size: 11px; font-weight: 600;
     letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 5px 11px;
+    padding: 6px 0;
     cursor: pointer;
     transition: all 0.15s ease;
     border-right: 1px solid var(--val-line);
   }
   .seg-btn:last-child { border-right: 0; }
   .seg-btn:hover { color: var(--val-cream); background: rgba(255,255,255,0.04); }
-  .seg-btn.active {
-    background: var(--val-red);
-    color: #fff;
-  }
+  .seg-btn.active { background: var(--val-red); color: #fff; }
 
-  .search-wrap { position: relative; flex: 1; }
+  .search-wrap { position: relative; }
   .search-input {
     width: 100%;
     appearance: none;
@@ -129,7 +137,7 @@
     color: var(--val-cream);
     font-family: 'Rajdhani', sans-serif;
     font-size: 12px;
-    padding: 5px 11px 5px 30px;
+    padding: 7px 11px 7px 30px;
     border-radius: 3px;
     outline: none;
     transition: border-color 0.15s;
@@ -176,38 +184,29 @@
     color: rgba(236,232,225,0.5);
   }
 
-  /* ─────────── Main preview (with side nav chevrons) ─────────── */
-  .main {
-    grid-area: main;
-    position: relative;
-    padding: 16px 14px;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-  }
-
+  /* ─────────── Preview card (now-playing) ─────────── */
   .preview {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 100px 1fr;
-    gap: 16px;
-    align-items: stretch;
-    padding: 0 38px; /* leaves room for the floating side chevrons */
+    padding: 22px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--val-line);
   }
   .preview-img-wrap {
     position: relative;
-    width: 100px; height: 140px;
+    width: 150px; height: 200px;
     border: 2px solid var(--val-red);
     border-radius: 3px;
     overflow: hidden;
     background: linear-gradient(180deg, #1a2332, #0a0e14);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.55);
+    box-shadow: 0 4px 22px rgba(0,0,0,0.55);
   }
   .preview-img-wrap.empty::before {
     content: '?';
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 48px; font-weight: 700;
+    font-size: 64px; font-weight: 700;
     color: rgba(255,70,85,0.2);
   }
   .preview-img {
@@ -225,131 +224,129 @@
   }
 
   .preview-meta {
-    display: flex; flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    text-align: center;
   }
   .preview-counter {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; letter-spacing: 0.18em;
+    font-size: 10px; letter-spacing: 0.2em;
     color: rgba(236,232,225,0.4);
   }
   .preview-counter b { color: var(--val-red); }
   .preview-name {
-    font-weight: 700; font-size: 32px;
-    letter-spacing: 0.1em;
+    font-weight: 700; font-size: 26px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    line-height: 0.95;
+    line-height: 1;
     color: var(--val-cream);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-top: 2px;
-  }
-  .preview-role-row {
-    display: flex; align-items: center; gap: 8px;
-    margin-top: 4px;
+    max-width: 240px;
   }
   .preview-role {
-    font-weight: 600; font-size: 11px;
-    letter-spacing: 0.22em;
+    font-weight: 600; font-size: 10px;
+    letter-spacing: 0.28em;
     text-transform: uppercase;
     color: var(--val-red);
+    margin-top: 1px;
   }
-  .preview-element {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px; letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 2px 7px;
-    border: 1px solid rgba(236,232,225,0.18);
-    border-radius: 2px;
-    color: rgba(236,232,225,0.6);
-  }
-  .preview-element.hidden { display: none; }
 
-  /* Side nav chevrons (floating on the preview row) */
-  .nav-side {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
+  /* ─────────── Nav (prev / next side by side) ─────────── */
+  .nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 12px 14px;
+    background: var(--val-bg);
+  }
+  .nav-btn {
     appearance: none;
-    width: 32px; height: 56px;
     background: rgba(255,70,85,0.08);
-    border: 1px solid rgba(255,70,85,0.35);
+    border: 1px solid rgba(255,70,85,0.4);
     color: var(--val-red);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 9px 0;
     border-radius: 3px;
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
     transition: all 0.15s ease;
   }
-  .nav-side:hover:not(:disabled) { background: var(--val-red); color: #fff; }
-  .nav-side:disabled { opacity: 0.25; cursor: not-allowed; }
-  .nav-side svg { width: 14px; height: 14px; }
-  .nav-side.prev { left: 14px; }
-  .nav-side.next { right: 14px; }
+  .nav-btn:hover:not(:disabled) { background: var(--val-red); color: #fff; }
+  .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+  .nav-btn svg { width: 13px; height: 13px; }
 
-  /* ─────────── Options (compact chips) ─────────── */
+  /* ─────────── Options ─────────── */
   .opts {
-    grid-area: opts;
+    padding: 14px 14px 18px;
     display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 14px 12px;
+    flex-direction: column;
+    gap: 8px;
     background: var(--val-bg-2);
     border-top: 1px solid var(--val-line);
   }
-  .opts-label {
+  .opts-title {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 9px; letter-spacing: 0.2em;
+    font-size: 9px; letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: rgba(236,232,225,0.4);
-    margin-right: 6px;
+    color: var(--val-red);
+    margin-bottom: 4px;
   }
-  .chip {
-    display: flex; align-items: center; gap: 6px;
-    padding: 5px 11px;
-    background: rgba(255,255,255,0.03);
+  .opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
     border: 1px solid var(--val-line);
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
     user-select: none;
     transition: all 0.15s ease;
-    flex: 1;
-    justify-content: center;
   }
-  .chip:hover { border-color: rgba(236,232,225,0.25); }
-  .chip-box {
-    width: 13px; height: 13px;
+  .opt:hover { border-color: rgba(236,232,225,0.2); }
+  .opt-box {
+    width: 15px; height: 15px;
     border: 1.5px solid rgba(236,232,225,0.4);
-    border-radius: 2px;
+    border-radius: 3px;
     flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
   }
-  .chip-box::after {
+  .opt-box::after {
     content: '✓';
     color: #fff;
-    font-size: 10px; font-weight: 700;
+    font-size: 11px; font-weight: 700;
     line-height: 1;
     opacity: 0;
     transition: opacity 0.12s;
   }
-  .chip-name {
-    font-weight: 700; font-size: 11px;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: rgba(236,232,225,0.65);
-    white-space: nowrap;
+  .opt-text {
+    display: flex; flex-direction: column; gap: 2px;
+    min-width: 0;
   }
-  .chip[data-key="blur"].on { background: rgba(255,70,85,0.12); border-color: rgba(255,70,85,0.5); }
-  .chip[data-key="blur"].on .chip-box { background: var(--val-red); border-color: var(--val-red); }
-  .chip[data-key="blur"].on .chip-name { color: var(--val-cream); }
-  .chip[data-key="played"].on { background: rgba(76,175,80,0.12); border-color: rgba(76,175,80,0.5); }
-  .chip[data-key="played"].on .chip-box { background: var(--green); border-color: var(--green); }
-  .chip[data-key="played"].on .chip-name { color: var(--val-cream); }
-  .chip[data-key="queued"].on { background: rgba(232,168,56,0.12); border-color: rgba(232,168,56,0.5); }
-  .chip[data-key="queued"].on .chip-box { background: var(--amber); border-color: var(--amber); }
-  .chip[data-key="queued"].on .chip-name { color: var(--val-cream); }
-  .chip.on .chip-box::after { opacity: 1; }
+  .opt-name {
+    font-weight: 700; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--val-cream);
+  }
+  .opt-desc {
+    font-size: 11px;
+    color: rgba(236,232,225,0.5);
+    line-height: 1.3;
+  }
+  .opt[data-key="blur"].on { background: rgba(255,70,85,0.1); border-color: rgba(255,70,85,0.5); }
+  .opt[data-key="blur"].on .opt-box { background: var(--val-red); border-color: var(--val-red); }
+  .opt[data-key="played"].on { background: rgba(76,175,80,0.1); border-color: rgba(76,175,80,0.5); }
+  .opt[data-key="played"].on .opt-box { background: var(--green); border-color: var(--green); }
+  .opt[data-key="queued"].on { background: rgba(232,168,56,0.1); border-color: rgba(232,168,56,0.5); }
+  .opt[data-key="queued"].on .opt-box { background: var(--amber); border-color: var(--amber); }
+  .opt.on .opt-box::after { opacity: 1; }
 
   /* ─────────── Loading / Error ─────────── */
   .loading-overlay {
@@ -375,7 +372,7 @@
     color: rgba(236,232,225,0.4);
   }
   .error-banner {
-    position: absolute; top: 40px; left: 0; right: 0;
+    position: absolute; top: 44px; left: 0; right: 0;
     padding: 8px 14px;
     background: rgba(255,70,85,0.1);
     border-bottom: 1px solid rgba(255,70,85,0.2);
@@ -404,23 +401,21 @@
     <div class="live" id="live"><div class="live-dot"></div>LIVE</div>
   </header>
 
-  <div class="tool">
-    <div class="seg" role="tablist">
-      <button class="seg-btn active" data-sort="alpha" title="Alphabetical">A→Z</button>
-      <button class="seg-btn" data-sort="release" title="Release order">REL</button>
-      <button class="seg-btn" data-sort="role" title="By role">ROLE</button>
-    </div>
-    <div class="search-wrap">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input class="search-input" type="text" placeholder="Type to jump (Enter)..." id="search" autocomplete="off">
-      <div class="search-results" id="search-results"></div>
-    </div>
-  </div>
+  <div class="scroll">
 
-  <div class="main">
-    <button class="nav-side prev" id="prev-btn" title="Previous (←)" aria-label="Previous">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
+    <div class="tool">
+      <div class="seg" role="tablist">
+        <button class="seg-btn active" data-sort="alpha" title="Alphabetical">A→Z</button>
+        <button class="seg-btn" data-sort="release" title="Release order">REL</button>
+        <button class="seg-btn" data-sort="role" title="By role">ROLE</button>
+      </div>
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="search-input" type="text" placeholder="Type to jump..." id="search" autocomplete="off">
+        <div class="search-results" id="search-results"></div>
+      </div>
+    </div>
+
     <div class="preview">
       <div class="preview-img-wrap empty" id="preview-wrap">
         <img class="preview-img hidden" id="preview-img" alt="">
@@ -431,31 +426,49 @@
           <b id="counter-num">--</b> / <span id="counter-tot">--</span>
         </div>
         <div class="preview-name" id="preview-name">No agent</div>
-        <div class="preview-role-row">
-          <span class="preview-role" id="preview-role">—</span>
-          <span class="preview-element hidden" id="preview-element">◈ —</span>
-        </div>
+        <div class="preview-role" id="preview-role">—</div>
       </div>
     </div>
-    <button class="nav-side next" id="next-btn" title="Next (→)" aria-label="Next">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-  </div>
 
-  <div class="opts">
-    <span class="opts-label">Display</span>
-    <label class="chip" data-key="blur" title="Blur the next agent's hex chip on the overlay so viewers can't see what's coming.">
-      <span class="chip-box"></span>
-      <span class="chip-name">Blur Next</span>
-    </label>
-    <label class="chip" data-key="played" title="Show a green ✓ on the previous hex chip — marks the just-played agent as done.">
-      <span class="chip-box"></span>
-      <span class="chip-name">Mark Played</span>
-    </label>
-    <label class="chip" data-key="queued" title="Show an amber ⏳ on the next hex chip — flags the upcoming agent.">
-      <span class="chip-box"></span>
-      <span class="chip-name">Queue Next</span>
-    </label>
+    <div class="nav">
+      <button class="nav-btn" id="prev-btn" title="Previous (←)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Prev
+      </button>
+      <button class="nav-btn" id="next-btn" title="Next (→)">
+        Next
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="opts">
+      <div class="opts-title">Display Options</div>
+
+      <label class="opt" data-key="blur" title="Blur the next agent's hex chip on the overlay so viewers can't see what's coming.">
+        <span class="opt-box"></span>
+        <span class="opt-text">
+          <span class="opt-name">Blur Next</span>
+          <span class="opt-desc">Hide the upcoming agent on the overlay's next hex chip.</span>
+        </span>
+      </label>
+
+      <label class="opt" data-key="played" title="Show a green ✓ on the previous hex chip — marks the just-played agent as done.">
+        <span class="opt-box"></span>
+        <span class="opt-text">
+          <span class="opt-name">Mark Previous Played</span>
+          <span class="opt-desc">Green ✓ + green border on the agent you just left.</span>
+        </span>
+      </label>
+
+      <label class="opt" data-key="queued" title="Show an amber ⏳ on the next hex chip — flags the upcoming agent.">
+        <span class="opt-box"></span>
+        <span class="opt-text">
+          <span class="opt-name">Queue Next</span>
+          <span class="opt-desc">Amber ⏳ on the next agent in the carousel.</span>
+        </span>
+      </label>
+    </div>
+
   </div>
 </div>
 
@@ -466,7 +479,6 @@
   const ROLE_ORDER = ['Duelist', 'Initiator', 'Controller', 'Sentinel'];
   const ROLE_COLORS = { Duelist: '#FF4655', Initiator: '#E8A838', Controller: '#9B59B6', Sentinel: '#3498DB' };
 
-  // Custom (non-API) agents — empty for now (Miks removed pending art).
   const CUSTOM_AGENTS = [];
 
   // ── Persistent state ──
@@ -506,7 +518,6 @@
   const loadingEl = $('loading'), errorEl = $('error'), liveEl = $('live');
   const previewWrap = $('preview-wrap'), previewImg = $('preview-img');
   const previewName = $('preview-name'), previewRole = $('preview-role');
-  const previewElement = $('preview-element');
   const counterNum = $('counter-num'), counterTot = $('counter-tot');
   const searchInput = $('search'), searchResults = $('search-results');
   const prevBtn = $('prev-btn'), nextBtn = $('next-btn');
@@ -517,7 +528,7 @@
   const channel = new BroadcastChannel(CHANNEL_NAME);
   channel.onmessage = (e) => {
     if (e.data?.type === 'SELECT_AGENT' && e.data.agentUuid) {
-      applySelection(e.data.agentUuid, /*broadcast*/ false);
+      applySelection(e.data.agentUuid, false);
     }
   };
 
@@ -537,31 +548,24 @@
     loadingEl.classList.add('hidden');
     counterTot.textContent = String(agentsRelease.length).padStart(2, '0');
 
-    // Restore UI state from persistence
     document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === currentSort));
-    document.querySelectorAll('.chip').forEach(el => el.classList.toggle('on', !!opts[el.dataset.key]));
+    document.querySelectorAll('.opt').forEach(el => el.classList.toggle('on', !!opts[el.dataset.key]));
 
-    // Sync overlay
     channel.postMessage({ type: 'SET_SORT', sort: currentSort });
     broadcastOptions();
 
     const sorted = getSortedAgents();
     const savedUuid = selectedByCategory[currentSort];
-    if (savedUuid && agentsRelease.some(a => a.uuid === savedUuid)) {
-      applySelection(savedUuid);
-    } else if (sorted.length > 0) {
-      applySelection(sorted[0].uuid);
-    } else {
-      updateNav();
-    }
+    if (savedUuid && agentsRelease.some(a => a.uuid === savedUuid)) applySelection(savedUuid);
+    else if (sorted.length > 0) applySelection(sorted[0].uuid);
+    else updateNav();
   } catch (err) {
     loadingEl.classList.add('hidden');
-    errorEl.textContent = 'Failed to load agents — check your connection.';
+    errorEl.textContent = 'Failed to load agents.';
     errorEl.classList.add('visible');
     return;
   }
 
-  // ── Sort logic ──
   function getSortedAgents() {
     const list = agentsRelease.slice();
     if (currentSort === 'alpha') list.sort((a,b) => a.name.localeCompare(b.name));
@@ -580,13 +584,11 @@
     selectedUuid = uuid;
     selectedByCategory[currentSort] = uuid;
     saveState();
-
     if (broadcast) channel.postMessage({ type: 'SELECT_AGENT', agentUuid: uuid });
 
     previewWrap.classList.remove('empty');
     previewImg.src = agent.bust || agent.icon;
     previewImg.classList.remove('hidden');
-
     previewName.textContent = agent.name;
     previewRole.textContent = agent.role;
     previewRole.style.color = ROLE_COLORS[agent.role] || 'var(--val-red)';
@@ -610,7 +612,7 @@
     channel.postMessage({ type: 'SET_OPTIONS', opts: { ...opts } });
   }
 
-  // ── Sort segment ──
+  // ── Sort ──
   document.querySelectorAll('.seg-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const newSort = btn.dataset.sort;
@@ -619,18 +621,12 @@
       saveState();
       document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
       channel.postMessage({ type: 'SET_SORT', sort: currentSort });
-
       const sorted = getSortedAgents();
       const savedUuid = selectedByCategory[currentSort];
-      if (savedUuid && agentsRelease.some(a => a.uuid === savedUuid)) {
-        applySelection(savedUuid);
-      } else if (sorted.length > 0) {
-        applySelection(sorted[0].uuid);
-      } else {
-        updateNav();
-      }
+      if (savedUuid && agentsRelease.some(a => a.uuid === savedUuid)) applySelection(savedUuid);
+      else if (sorted.length > 0) applySelection(sorted[0].uuid);
+      else updateNav();
     });
   });
 
@@ -647,7 +643,6 @@
     if (idx >= 0 && idx < sorted.length - 1) applySelection(sorted[idx + 1].uuid);
     else if (idx < 0 && sorted.length > 0) applySelection(sorted[0].uuid);
   });
-
   document.addEventListener('keydown', (e) => {
     if (document.activeElement === searchInput) return;
     if (e.key === 'ArrowLeft') prevBtn.click();
@@ -716,8 +711,8 @@
     if (!e.target.closest('.search-wrap')) searchResults.classList.remove('open');
   });
 
-  // ── Option chips ──
-  document.querySelectorAll('.chip').forEach(el => {
+  // ── Option toggles ──
+  document.querySelectorAll('.opt').forEach(el => {
     el.addEventListener('click', () => {
       const key = el.dataset.key;
       opts[key] = !opts[key];
