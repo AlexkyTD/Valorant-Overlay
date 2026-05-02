@@ -21,7 +21,7 @@
 
   html, body {
     width: 400px;
-    height: 1200px;
+    height: 900px;
     overflow: hidden;
     background: transparent !important;
     font-family: var(--font-body);
@@ -32,20 +32,40 @@
   .overlay {
     position: relative;
     width: 400px;
-    height: 1200px;
+    height: 900px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
   }
-  /* No background panel — fully transparent. The agent block is just
-     centered inside the 400×1200 OBS source. */
+  /* VALORANT-style frame: semi-transparent black background, thin red
+     outline + four red angular L-corners that extend slightly beyond
+     the rectangle for the signature tactical look. */
   .agent-display {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px 0;
+    padding: 36px 18px 24px;
+    width: 320px;
+    background: rgba(10, 14, 20, 0.55);
+    border: 1px solid rgba(253, 69, 86, 0.45);
+    box-shadow:
+      inset 0 0 30px rgba(253, 69, 86, 0.06),
+      0 6px 22px rgba(0, 0, 0, 0.4);
   }
+  .frame-corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 3px solid #FD4556;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .frame-corner.tl { top: -3px; left: -3px; border-right: 0; border-bottom: 0; }
+  .frame-corner.tr { top: -3px; right: -3px; border-left: 0; border-bottom: 0; }
+  .frame-corner.bl { bottom: -3px; left: -3px; border-right: 0; border-top: 0; }
+  .frame-corner.br { bottom: -3px; right: -3px; border-left: 0; border-top: 0; }
 
   /* ─────────── Counter pill ─────────── */
   .ov-counter {
@@ -73,7 +93,7 @@
   }
   /* Push the top chip up and the bottom chip down so the aura
      halo around the hero doesn't overlap them */
-  #stack-top { margin-bottom: 30px; }
+  #stack-top { margin-top: 14px; margin-bottom: 30px; }
   #stack-bot { margin-top: 12px; }
   .hex-sep {
     color: rgba(236,232,225,0.3);
@@ -333,6 +353,10 @@
   </div>
 
   <div class="agent-display hidden" id="display">
+    <span class="frame-corner tl"></span>
+    <span class="frame-corner tr"></span>
+    <span class="frame-corner bl"></span>
+    <span class="frame-corner br"></span>
     <div class="ov-counter">
       <span class="num" id="counter-num">00</span>
       <span class="sep">/</span>
@@ -399,7 +423,7 @@ const ELEMENT_MAP = {
   vyse:       { el: 'metal',        primary: '#9b4dff', secondary: '#5a2aa8', accent: '#d8b8ff', bg: 'radial-gradient(circle at 50% 60%, #1a0a3a, #08020c)' },
   tejo:       { el: 'missile',      primary: '#f0a020', secondary: '#a06010', accent: '#ffd07a', bg: 'radial-gradient(circle at 50% 60%, #2a1a08, #080604)' },
   waylay:     { el: 'radiance',     primary: '#ff80a8', secondary: '#c84a78', accent: '#ffc8da', bg: 'radial-gradient(circle at 50% 60%, #2a0a18, #08020a)' },
-  veto:       { el: 'stealth',      primary: '#7a90ff', secondary: '#3a4aa8', accent: '#c0d0ff', bg: 'radial-gradient(circle at 50% 60%, #0a142a, #02040c)', portraitY: '32%' },
+  veto:       { el: 'stealth',      primary: '#7a90ff', secondary: '#3a4aa8', accent: '#c0d0ff', bg: 'radial-gradient(circle at 50% 60%, #0a142a, #02040c)', portraitY: '8%' },
   miks:       { el: 'sound',        primary: '#ff5fa8', secondary: '#7a3aff', accent: '#fff0d4', bg: 'radial-gradient(circle at 50% 60%, #2a0a3a, #08020c)' },
 };
 const FALLBACK = { el: 'fire', primary: '#FD4556', secondary: '#FF8A65', accent: '#FFD54F', bg: 'radial-gradient(circle at 50% 60%, #2a0a14, #08020c)' };
