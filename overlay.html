@@ -1043,14 +1043,65 @@ function hexSvg(stroke, active) {
   const agentRole = document.getElementById('agent-role');
   const elementTag = document.getElementById('element-tag');
 
-  let agents = []; // sorted alphabetical for the carousel
+  // ── Persistent state (shared with dock via localStorage) ──
+  const STORAGE_KEY = 'valorant-overlay:state';
+  const DEFAULT_STATE = {
+    sort: 'alpha',
+    selectedByCategory: {},
+    opts: { blur: false, played: false, queued: false },
+  };
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { ...DEFAULT_STATE };
+      const p = JSON.parse(raw);
+      return {
+        ...DEFAULT_STATE,
+        ...p,
+        selectedByCategory: { ...DEFAULT_STATE.selectedByCategory, ...(p.selectedByCategory || {}) },
+        opts: { ...DEFAULT_STATE.opts, ...(p.opts || {}) },
+      };
+    } catch { return { ...DEFAULT_STATE }; }
+  }
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        sort: currentSort,
+        selectedByCategory,
+        opts,
+      }));
+    } catch {}
+  }
+
+  const persisted = loadState();
+  let currentSort = persisted.sort;
+  const selectedByCategory = persisted.selectedByCategory;
+  const opts = persisted.opts;
+  let currentUuid = null;
+
+  const ROLE_ORDER = ['Duelist', 'Initiator', 'Controller', 'Sentinel'];
+  let agentsRelease = []; // original API (release) order
+  let agents = [];        // currently sorted view
+  function applySort(mode) {
+    currentSort = mode;
+    if (mode === 'alpha') {
+      agents = agentsRelease.slice().sort((a,b) => a.name.localeCompare(b.name));
+    } else if (mode === 'role') {
+      agents = agentsRelease.slice().sort((a,b) => {
+        const ri = ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role);
+        return ri !== 0 ? ri : a.name.localeCompare(b.name);
+      });
+    } else {
+      agents = agentsRelease.slice(); // release order
+    }
+  }
 
   // ── Fetch ──
   try {
     const res = await fetch(API_URL);
     if (!res.ok) throw new Error(`API ${res.status}`);
     const data = await res.json();
-    agents = data.data
+    agentsRelease = data.data
       .filter(a => a.isPlayableCharacter !== false)
       .map(a => {
         const key = a.displayName.toLowerCase();
@@ -1063,11 +1114,18 @@ function hexSvg(stroke, active) {
           bust: a.bustPortrait || a.fullPortrait,
           ...elem,
         };
-      })
-      .sort((a, b) => a.name.localeCompare(b.name));
+      });
+    applySort(currentSort);
 
     loadingEl.classList.add('hidden');
-    idleEl.classList.remove('hidden');
+
+    // Auto-select the saved agent for the current sort category, if any
+    const savedUuid = selectedByCategory[currentSort];
+    if (savedUuid && agents.some(a => a.uuid === savedUuid)) {
+      selectAgentInternal(savedUuid);
+    } else {
+      idleEl.classList.remove('hidden');
+    }
   } catch (e) {
     loadingEl.classList.add('hidden');
     errorEl.classList.remove('hidden');
@@ -1075,31 +1133,44 @@ function hexSvg(stroke, active) {
     return;
   }
 
-  // ── Display options (driven by the dock) ──
-  const opts = { blur: false, played: false, queued: false };
-  let lastIdx = -1;
-
   // ── BroadcastChannel ──
   const channel = new BroadcastChannel(CHANNEL);
   channel.onmessage = (e) => {
     const m = e.data;
     if (!m) return;
-    if (m.type === 'SELECT_AGENT' && m.agentUuid) selectAgent(m.agentUuid);
-    else if (m.type === 'SET_OPTIONS' && m.opts) {
+    if (m.type === 'SELECT_AGENT' && m.agentUuid) {
+      selectAgent(m.agentUuid);
+    } else if (m.type === 'SET_OPTIONS' && m.opts) {
       Object.assign(opts, m.opts);
-      if (lastIdx >= 0) render(lastIdx); // re-render to apply visuals
+      saveState();
+      if (currentUuid) selectAgent(currentUuid); // re-render
+    } else if (m.type === 'SET_SORT' && m.sort) {
+      applySort(m.sort);
+      saveState();
+      if (currentUuid) selectAgent(currentUuid); // refresh prev/next
     }
   };
 
   // ── Selection / render ──
+  // Public: external selection (broadcast or click) — saves progress.
   function selectAgent(uuid) {
     const idx = agents.findIndex(a => a.uuid === uuid);
     if (idx < 0) return;
+    currentUuid = uuid;
+    selectedByCategory[currentSort] = uuid;
+    saveState();
+    render(idx);
+  }
+  // Internal: same as selectAgent but used during init/restore — keeps
+  // saveState idempotent (state already loaded from localStorage).
+  function selectAgentInternal(uuid) {
+    const idx = agents.findIndex(a => a.uuid === uuid);
+    if (idx < 0) return;
+    currentUuid = uuid;
     render(idx);
   }
 
   function render(idx) {
-    lastIdx = idx;
     const agent = agents[idx];
     const total = agents.length;
 

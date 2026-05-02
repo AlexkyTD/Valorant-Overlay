@@ -496,17 +496,8 @@
   const ROLE_ORDER = ['Duelist', 'Initiator', 'Controller', 'Sentinel'];
   const ROLE_COLORS = { Duelist: '#FF4655', Initiator: '#E8A838', Controller: '#9B59B6', Sentinel: '#3498DB' };
 
-  // Custom (non-API) agents — must mirror overlay.html's CUSTOM_AGENTS list
-  const CUSTOM_AGENTS = [
-    {
-      uuid: 'custom-miks-0001',
-      displayName: 'Miks',
-      role: { displayName: 'Controller' },
-      displayIcon: './miks-icon.png',
-      backgroundGradientColors: ['ff5fa8ff', '7a3affff', 'fff0d4ff'],
-      bustPortrait: './miks-portrait.png',
-    },
-  ];
+  // Custom (non-API) agents — empty for now (Miks removed pending art).
+  const CUSTOM_AGENTS = [];
 
   const $ = (id) => document.getElementById(id);
   const loadingEl = $('loading'), errorEl = $('error');
@@ -517,10 +508,42 @@
   const searchInput = $('search'), searchResults = $('search-results');
   const prevBtn = $('prev-btn'), nextBtn = $('next-btn');
 
+  // ── Persistent state (localStorage) ──
+  const STORAGE_KEY = 'valorant-overlay:state';
+  const DEFAULT_STATE = {
+    sort: 'alpha',
+    selectedByCategory: {},  // { alpha: uuid, release: uuid, role: uuid }
+    opts: { blur: false, played: false, queued: false },
+  };
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { ...DEFAULT_STATE };
+      const parsed = JSON.parse(raw);
+      return {
+        ...DEFAULT_STATE,
+        ...parsed,
+        selectedByCategory: { ...DEFAULT_STATE.selectedByCategory, ...(parsed.selectedByCategory || {}) },
+        opts: { ...DEFAULT_STATE.opts, ...(parsed.opts || {}) },
+      };
+    } catch { return { ...DEFAULT_STATE }; }
+  }
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        sort: currentSort,
+        selectedByCategory,
+        opts,
+      }));
+    } catch {}
+  }
+
+  const state = loadState();
   let agentsRelease = [];
   let selectedUuid = null;
-  let currentSort = 'alpha';
-  const opts = { blur: false, played: false, queued: false };
+  let currentSort = state.sort;
+  const selectedByCategory = state.selectedByCategory;
+  const opts = state.opts;
 
   const channel = new BroadcastChannel(CHANNEL_NAME);
 
@@ -547,7 +570,22 @@
     }));
     loadingEl.classList.add('hidden');
     counterTot.textContent = String(agentsRelease.length).padStart(2, '0');
-    updateNav();
+
+    // Restore persisted UI state ─────────────────────────────────────
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === currentSort));
+    document.querySelectorAll('.opt').forEach(el => el.classList.toggle('on', !!opts[el.dataset.key]));
+
+    // Push initial sort + options to overlay so it boots in sync
+    channel.postMessage({ type: 'SET_SORT', sort: currentSort });
+    broadcastOptions();
+
+    // Restore the saved selected agent for this sort category (if any)
+    const savedUuid = selectedByCategory[currentSort];
+    if (savedUuid && agentsRelease.some(a => a.uuid === savedUuid)) {
+      applySelection(savedUuid);
+    } else {
+      updateNav();
+    }
   } catch (err) {
     loadingEl.classList.add('hidden');
     errorEl.textContent = 'Failed to load agents — check your connection.';
@@ -575,6 +613,10 @@
     const agent = agentsRelease.find(a => a.uuid === uuid);
     if (!agent) return;
     selectedUuid = uuid;
+
+    // Persist progress for the current sort category
+    selectedByCategory[currentSort] = uuid;
+    saveState();
 
     if (broadcast) channel.postMessage({ type: 'SELECT_AGENT', agentUuid: uuid });
 
@@ -608,15 +650,29 @@
   // ── Sort ──
   document.querySelectorAll('.sort-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      currentSort = btn.dataset.sort;
+      const newSort = btn.dataset.sort;
+      if (newSort === currentSort) return;
+      currentSort = newSort;
+      saveState();
       document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      // Re-sync counter (sorted index changes when sort changes)
-      if (selectedUuid) {
-        const idx = getSortedIdx(selectedUuid);
-        counterNum.textContent = idx >= 0 ? String(idx + 1).padStart(2, '0') : '--';
+
+      // Tell the overlay to re-sort its prev/next chips the same way
+      channel.postMessage({ type: 'SET_SORT', sort: currentSort });
+
+      // Restore the saved agent for the new sort category (independent
+      // progression per category). If no saved agent, fall back to the
+      // first one in this category's order.
+      const sorted = getSortedAgents();
+      const savedUuid = selectedByCategory[currentSort];
+      let nextUuid = null;
+      if (savedUuid && agentsRelease.some(a => a.uuid === savedUuid)) {
+        nextUuid = savedUuid;
+      } else if (sorted.length > 0) {
+        nextUuid = sorted[0].uuid;
       }
-      updateNav();
+      if (nextUuid) applySelection(nextUuid);
+      else updateNav();
     });
   });
 
@@ -713,12 +769,10 @@
       const key = el.dataset.key;
       opts[key] = !opts[key];
       el.classList.toggle('on', opts[key]);
+      saveState();
       broadcastOptions();
     });
   });
-
-  // Push initial option state to overlay (in case dock loads first)
-  broadcastOptions();
 })();
 </script>
 </body>
