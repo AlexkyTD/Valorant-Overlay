@@ -290,6 +290,128 @@
     color: rgba(236,232,225,0.5);
   }
 
+  /* ── Controls bar (Prev/Next + toggles) ── */
+  .controls-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 24px;
+    background: #0E1620;
+    border-bottom: 1px solid rgba(236,232,225,0.06);
+    flex-shrink: 0;
+  }
+  .nav-arrow {
+    appearance: none;
+    background: rgba(255,70,85,0.08);
+    border: 1px solid rgba(255,70,85,0.35);
+    color: #FF4655;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+  .nav-arrow:hover { background: #FF4655; color: #fff; }
+  .nav-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+  .nav-arrow svg { width: 12px; height: 12px; }
+
+  .toggle-group {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+  }
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(236,232,225,0.1);
+    border-radius: 3px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+  }
+  .toggle:hover { border-color: rgba(236,232,225,0.25); }
+  .toggle .toggle-box {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid rgba(236,232,225,0.4);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .toggle .toggle-box::after {
+    content: '✓';
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.12s;
+  }
+  .toggle .toggle-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(236,232,225,0.65);
+  }
+  .toggle.on { background: rgba(255,70,85,0.12); border-color: rgba(255,70,85,0.5); }
+  .toggle.on .toggle-box { background: #FF4655; border-color: #FF4655; }
+  .toggle.on .toggle-box::after { opacity: 1; }
+  .toggle.on .toggle-label { color: #ECE8E1; }
+  .toggle[data-toggle="played"].on { background: rgba(76,175,80,0.12); border-color: rgba(76,175,80,0.5); }
+  .toggle[data-toggle="played"].on .toggle-box { background: #4CAF50; border-color: #4CAF50; }
+  .toggle[data-toggle="queued"].on { background: rgba(232,168,56,0.12); border-color: rgba(232,168,56,0.5); }
+  .toggle[data-toggle="queued"].on .toggle-box { background: #E8A838; border-color: #E8A838; }
+
+  /* ── Card state badges ── */
+  .card-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  .agent-card.played .card-badge.played-badge {
+    background: #4CAF50;
+  }
+  .agent-card.queued .card-badge.queued-badge {
+    background: #E8A838;
+  }
+  .agent-card.played {
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 16px rgba(76,175,80,0.3) !important;
+  }
+  .agent-card.queued .card-img-wrap {
+    background: radial-gradient(circle, rgba(232,168,56,0.12) 0%, transparent 70%);
+  }
+  .agent-card.blurred .card-img {
+    filter: blur(8px) brightness(0.6);
+  }
+  .agent-card.blurred .card-name {
+    color: rgba(236,232,225,0.25);
+  }
+
   /* ── Loading / Error ── */
   .loading-overlay {
     position: absolute;
@@ -363,7 +485,33 @@
     <button class="sort-btn active" data-sort="alpha">A → Z</button>
     <button class="sort-btn" data-sort="release">Release</button>
     <button class="sort-btn" data-sort="role">By Role</button>
-    <input class="search-box" type="text" placeholder="Search agent..." id="search">
+    <input class="search-box" type="text" placeholder="Search or jump (Enter)..." id="search">
+  </div>
+
+  <div class="controls-bar">
+    <button class="nav-arrow" id="prev-btn" title="Previous agent">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      Prev
+    </button>
+    <button class="nav-arrow" id="next-btn" title="Next agent">
+      Next
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    <div class="toggle-group">
+      <div class="toggle" data-toggle="blur" title="Blur the agent that comes after the current one">
+        <div class="toggle-box"></div>
+        <span class="toggle-label">Blur Next</span>
+      </div>
+      <div class="toggle" data-toggle="played" title="When you switch agent, mark the previous one as played (✓ + green)">
+        <div class="toggle-box"></div>
+        <span class="toggle-label">Mark Previous Played</span>
+      </div>
+      <div class="toggle" data-toggle="queued" title="Show an hourglass on the agent that comes after the current one">
+        <div class="toggle-box"></div>
+        <span class="toggle-label">Queue Next</span>
+      </div>
+    </div>
   </div>
 
   <div class="grid-container" id="grid-container">
@@ -390,6 +538,13 @@
   let agentsRelease = []; // original API order (release order)
   let selectedUuid = null;
   let currentSort = 'alpha';
+
+  // Per-uuid persistent state
+  const playedSet = new Set();   // agents marked as played (from "Mark Previous Played" toggle)
+  // Toggle state for the three options
+  const opts = { blur: false, played: false, queued: false };
+  // Track which agent was previously selected so we can mark it played on next select
+  let previousUuid = null;
 
   const channel = new BroadcastChannel(CHANNEL_NAME);
 
@@ -443,6 +598,12 @@
     const sorted = getSortedAgents(filter);
     gridEl.innerHTML = '';
 
+    // Compute the agent that comes after the current selection (in the
+    // visible sort order). Used by the Blur Next + Queue Next options.
+    const selIdx = sorted.findIndex(a => a.uuid === selectedUuid);
+    const nextUuid = selIdx >= 0 && selIdx < sorted.length - 1 ? sorted[selIdx + 1].uuid : null;
+    const ctx = { queuedUuid: nextUuid, blurUuid: nextUuid };
+
     if (currentSort === 'role' && !filter) {
       let lastRole = null;
       sorted.forEach(agent => {
@@ -454,18 +615,33 @@
             <div class="role-header-text">${agent.role}</div>`;
           gridEl.appendChild(header);
         }
-        gridEl.appendChild(createCard(agent));
+        gridEl.appendChild(createCard(agent, ctx));
       });
     } else {
-      sorted.forEach(agent => gridEl.appendChild(createCard(agent)));
+      sorted.forEach(agent => gridEl.appendChild(createCard(agent, ctx)));
     }
   }
 
-  function createCard(agent) {
+  function createCard(agent, ctx) {
     const btn = document.createElement('button');
-    btn.className = 'agent-card' + (agent.uuid === selectedUuid ? ' selected' : '');
+    const isSelected = agent.uuid === selectedUuid;
+    const isPlayed = playedSet.has(agent.uuid);
+    const isQueued = opts.queued && ctx.queuedUuid === agent.uuid;
+    const isBlurred = opts.blur && ctx.blurUuid === agent.uuid && !isSelected;
+
+    btn.className = 'agent-card'
+      + (isSelected ? ' selected' : '')
+      + (isPlayed ? ' played' : '')
+      + (isQueued ? ' queued' : '')
+      + (isBlurred ? ' blurred' : '');
     btn.style.setProperty('--card-glow', (agent.colors[0] || '#FF4655') + '30');
+
+    let badgeHtml = '';
+    if (isPlayed) badgeHtml += '<div class="card-badge played-badge" title="Played">✓</div>';
+    else if (isQueued) badgeHtml += '<div class="card-badge queued-badge" title="Queued">⏳</div>';
+
     btn.innerHTML = `
+      ${badgeHtml}
       <div class="card-role-dot" data-role="${agent.role}"></div>
       <div class="card-img-wrap">
         <img class="card-img" src="${agent.icon}" alt="${agent.name}" loading="lazy">
@@ -475,10 +651,28 @@
     return btn;
   }
 
+  function getNeighborUuids() {
+    const list = getSortedAgents(searchInput.value.trim());
+    const idx = list.findIndex(a => a.uuid === selectedUuid);
+    if (idx < 0) return { prev: null, next: null };
+    return {
+      prev: idx > 0 ? list[idx - 1].uuid : null,
+      next: idx < list.length - 1 ? list[idx + 1].uuid : null,
+    };
+  }
+
   function selectAgent(uuid) {
-    selectedUuid = uuid;
+    if (!uuid || uuid === selectedUuid) return;
     const agent = agentsRelease.find(a => a.uuid === uuid);
     if (!agent) return;
+
+    // Mark the just-left agent as played if the toggle is on
+    if (opts.played && selectedUuid && selectedUuid !== uuid) {
+      playedSet.add(selectedUuid);
+    }
+
+    previousUuid = selectedUuid;
+    selectedUuid = uuid;
 
     channel.postMessage({ type: 'SELECT_AGENT', agentUuid: uuid });
 
@@ -490,6 +684,13 @@
     liveEl.classList.add('on');
 
     renderGrid();
+    updateNavButtons();
+  }
+
+  function updateNavButtons() {
+    const { prev, next } = getNeighborUuids();
+    document.getElementById('prev-btn').disabled = !prev;
+    document.getElementById('next-btn').disabled = !next;
   }
 
   // ── Sort buttons ──
@@ -503,7 +704,57 @@
   });
 
   // ── Search ──
-  searchInput.addEventListener('input', () => renderGrid());
+  searchInput.addEventListener('input', () => { renderGrid(); updateNavButtons(); });
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const list = getSortedAgents(searchInput.value.trim());
+      if (list.length > 0) {
+        selectAgent(list[0].uuid);
+        searchInput.blur();
+      }
+    } else if (e.key === 'Escape') {
+      searchInput.value = '';
+      renderGrid();
+      updateNavButtons();
+    }
+  });
+
+  // ── Prev / Next nav ──
+  document.getElementById('prev-btn').addEventListener('click', () => {
+    const { prev } = getNeighborUuids();
+    if (prev) selectAgent(prev);
+  });
+  document.getElementById('next-btn').addEventListener('click', () => {
+    const { next } = getNeighborUuids();
+    if (next) selectAgent(next);
+  });
+
+  // Keyboard shortcuts: ← / → step through agents (when not typing)
+  document.addEventListener('keydown', (e) => {
+    if (document.activeElement === searchInput) return;
+    if (e.key === 'ArrowLeft') {
+      const { prev } = getNeighborUuids();
+      if (prev) selectAgent(prev);
+    } else if (e.key === 'ArrowRight') {
+      const { next } = getNeighborUuids();
+      if (next) selectAgent(next);
+    }
+  });
+
+  // ── Option toggles ──
+  document.querySelectorAll('.toggle').forEach(el => {
+    el.addEventListener('click', () => {
+      const key = el.dataset.toggle;
+      opts[key] = !opts[key];
+      el.classList.toggle('on', opts[key]);
+      // If turning OFF "played", clear the played history
+      if (key === 'played' && !opts.played) playedSet.clear();
+      renderGrid();
+    });
+  });
+
+  updateNavButtons();
 })();
 </script>
 </body>
