@@ -1215,16 +1215,17 @@ function hexSvg(stroke, active) {
     counterNum.textContent = String(idx + 1).padStart(2, '0');
     counterTot.textContent = String(total).padStart(2, '0');
 
-    // Carousel context
-    const before1 = agents[(idx - 1 + total) % total];
-    const after1  = agents[(idx + 1) % total];
+    // Carousel context — no wrap-around. If we're at the start of the
+    // list, leave the top stack empty; same for the bottom at the end.
+    const before1 = idx > 0 ? agents[idx - 1] : null;
+    const after1  = idx < total - 1 ? agents[idx + 1] : null;
 
-    stackTop.innerHTML = `
+    stackTop.innerHTML = before1 ? `
       ${chipHtml(before1, 'md', { played: opts.played })}
-      <div class="hex-sep">▾</div>`;
-    stackBot.innerHTML = `
+      <div class="hex-sep">▾</div>` : '';
+    stackBot.innerHTML = after1 ? `
       <div class="hex-sep">▾</div>
-      ${chipHtml(after1, 'md', { queued: opts.queued, blurred: opts.blur })}`;
+      ${chipHtml(after1, 'md', { queued: opts.queued, blurred: opts.blur })}` : '';
 
     bindChipClicks();
 
