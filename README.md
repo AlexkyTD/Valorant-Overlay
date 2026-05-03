@@ -43,7 +43,7 @@ In OBS:
 1. **Sources** → ➕ → **Browser**
 2. Name it `VALORANT Overlay` → OK
 3. Tick **Local file**, browse to `overlay.html`
-4. **Width** = `400`, **Height** = `1200`
+4. **Width** = `400`, **Height** = `900`
 5. Leave the rest at defaults → OK
 6. Resize and place the source on the side of your gameplay scene
 
@@ -93,7 +93,7 @@ All three can be on at once.
 
 ## How it works
 
-- **`overlay.html`** — 400×1200 transparent panel with a Hex Tower carousel, animated SVG aura per element, and bust portrait.
+- **`overlay.html`** — 400×900 transparent panel with a Hex Tower carousel, animated SVG aura per element, and bust portrait.
 - **`dock.html`** — Compact preview-only control surface (current agent face + meta + nav + options).
 - **Sync** — Both files communicate over a `BroadcastChannel('valorant-overlay')`. The dock pushes `SELECT_AGENT`, `SET_SORT`, and `SET_OPTIONS` messages; the overlay listens and re-renders.
 - **Persistence** — Both files load/save state to `localStorage` under the key `valorant-overlay:state` so reopening OBS restores everything.
@@ -106,7 +106,7 @@ All three can be on at once.
 
 | Problem | Fix |
 | --- | --- |
-| Overlay shows nothing | Make sure the OBS Browser Source size is **400×1200** and that `valorant-api.com` is reachable (it's a public CDN, no key needed). |
+| Overlay shows nothing | Make sure the OBS Browser Source size is **400×900** and that `valorant-api.com` is reachable (it's a public CDN, no key needed). |
 | Dock doesn't update overlay | Both browser sources must be loaded from the **same path** (same origin) so they share `BroadcastChannel`. Refresh both sources after moving files. |
 | Settings reset each time OBS opens | OBS Browser Sources have a per-source storage profile. Check that **both** sources point to the *same* `dock.html`/`overlay.html` paths each session. |
 | An agent is missing | The roster is pulled from the public Valorant API — newly added agents will appear automatically once the API ships them. |
