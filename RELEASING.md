@@ -56,29 +56,37 @@ git tag -a vX.Y.Z -m "vX.Y.Z — <one-line summary>"
 git push origin vX.Y.Z
 ```
 
-### 3. Build the release zip
+### 3. Build the release archives — zip AND tar.gz, both required
 
-From the repo root, on Windows (PowerShell):
+**Rule: every release must ship exactly two custom assets — `valorant-overlay-vX.Y.Z.zip` and `valorant-overlay-vX.Y.Z.tar.gz`.** Never attach individual files (`overlay.html`, `dock.html`, `README.md`, etc.) to a release. They clutter the assets list, confuse streamers about what to download, and are redundant with the archives. (GitHub also auto-generates "Source code (zip)" and "Source code (tar.gz)" containing the full repo — those are unavoidable but show up under a separate label.)
+
+Both archives must contain **the same files**, in this order:
+
+- `overlay.html`
+- `dock.html`
+- `README.md`
+
+Don't include `CHANGELOG.md`, `RELEASING.md`, or anything else — streamers only need the runnable HTMLs and the user-facing README.
+
+From the repo root:
 
 ```bash
-powershell -NoProfile -Command "Compress-Archive -Path 'overlay.html','dock.html','README.md' -DestinationPath 'valorant-overlay-vX.Y.Z.zip' -Force"
-```
-
-On macOS / Linux:
-
-```bash
+# zip — works cross-platform if you have the zip command, otherwise use Compress-Archive on Windows:
 zip -r valorant-overlay-vX.Y.Z.zip overlay.html dock.html README.md
-```
+# Windows fallback:
+# powershell -NoProfile -Command "Compress-Archive -Path 'overlay.html','dock.html','README.md' -DestinationPath 'valorant-overlay-vX.Y.Z.zip' -Force"
 
-> Don't include `CHANGELOG.md`, `RELEASING.md`, or any dev files in the zip — streamers only need the runnable HTMLs and the README.
+# tar.gz — Windows 10+ ships with bsdtar, so this works on Windows and Unix alike:
+tar -czf valorant-overlay-vX.Y.Z.tar.gz overlay.html dock.html README.md
+```
 
 ### 4. Publish on GitHub
 
-Use the GitHub CLI (`gh`):
+Use the GitHub CLI (`gh`). **Only attach the two archives** — nothing else:
 
 ```bash
 gh release create vX.Y.Z \
-  valorant-overlay-vX.Y.Z.zip overlay.html dock.html README.md \
+  valorant-overlay-vX.Y.Z.zip valorant-overlay-vX.Y.Z.tar.gz \
   --title "vX.Y.Z — <short title>" \
   --notes-file release-notes-vX.Y.Z.md
 ```
@@ -94,7 +102,7 @@ Where `release-notes-vX.Y.Z.md` is a temporary file containing the release notes
 
 ## Installation
 
-Download **valorant-overlay-vX.Y.Z.zip** below, unzip somewhere, then add two Browser Sources in OBS:
+Download **valorant-overlay-vX.Y.Z.zip** (or `.tar.gz` if you prefer) below, extract it somewhere, then add two Browser Sources in OBS:
 
 | Source | File | Size |
 | --- | --- | --- |
@@ -116,19 +124,40 @@ Not affiliated with or endorsed by Riot Games. VALORANT and all related assets a
 
 ## Editing an already-published release
 
-If you need to fix a typo or update the notes of an existing release:
+If you need to fix a typo or update the notes/files of an existing release:
 
 ```bash
 # Replace notes
 gh release edit vX.Y.Z --notes-file new-notes.md
 
-# Add a missing asset
-gh release upload vX.Y.Z some-file.zip
-
 # Replace an asset (delete then re-upload)
-gh release delete-asset vX.Y.Z some-file.zip --yes
-gh release upload vX.Y.Z some-file.zip
+gh release delete-asset vX.Y.Z valorant-overlay-vX.Y.Z.zip --yes
+gh release upload vX.Y.Z valorant-overlay-vX.Y.Z.zip
 ```
+
+**Whenever you regenerate either archive, regenerate BOTH** — the zip and the tar.gz must always contain the same files. Re-zip and re-tar from the same working tree, then replace both assets in the same `gh` invocation:
+
+```bash
+# Rebuild both archives
+zip -r valorant-overlay-vX.Y.Z.zip overlay.html dock.html README.md
+tar -czf valorant-overlay-vX.Y.Z.tar.gz overlay.html dock.html README.md
+
+# Swap them on the release in one shot
+gh release delete-asset vX.Y.Z valorant-overlay-vX.Y.Z.zip --yes
+gh release delete-asset vX.Y.Z valorant-overlay-vX.Y.Z.tar.gz --yes
+gh release upload vX.Y.Z valorant-overlay-vX.Y.Z.zip valorant-overlay-vX.Y.Z.tar.gz
+```
+
+**Sanity-check the asset list afterwards:**
+
+```bash
+gh release view vX.Y.Z --repo AlexkyTD/Valorant-Overlay | grep ^asset:
+# expected output (only these two):
+# asset:	valorant-overlay-vX.Y.Z.tar.gz
+# asset:	valorant-overlay-vX.Y.Z.zip
+```
+
+If you see anything other than those two asset lines, delete the extras with `gh release delete-asset`. The auto-generated "Source code (zip)" / "Source code (tar.gz)" don't show up in this listing — those are tied to the tag and can't be removed.
 
 ---
 
